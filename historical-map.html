@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas of Empires</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+  :root {
+    --parchment:#f4ede0;--parchment-dark:#e8dcc8;
+    --ink:#2c1810;--ink-light:#5c3d2e;
+    --gold:#b8860b;--gold-light:#d4a017;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#1a1008;color:var(--ink);font-family:'Crimson Pro',Georgia,serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+  header{background:var(--ink);border-bottom:2px solid var(--gold);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  h1{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold-light);letter-spacing:3px;}
+  .subtitle{font-family:'Crimson Pro',serif;font-style:italic;color:#a09070;font-size:13px;margin-left:12px;}
+  .year-display{font-family:'Cinzel',serif;font-size:30px;font-weight:600;color:var(--gold-light);letter-spacing:4px;text-align:center;}
+  .year-display span{font-size:12px;color:#a09070;display:block;font-family:'Crimson Pro',serif;font-style:italic;}
+  .main-layout{display:flex;flex:1;overflow:hidden;}
+  .map-container{flex:1;position:relative;overflow:hidden;background:#1e3a4a;}
+  #map-svg{width:100%;height:100%;display:block;}
+  .land{fill:#d4c9a8;stroke:#a09070;stroke-width:0.4;}
+  .graticule{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:0.5;}
+  .sphere{fill:#1e3a4a;}
+  .empire-region{cursor:pointer;}
+  .empire-region:hover path{stroke-width:2.5 !important;opacity:0.85;}
+  .city-group{cursor:pointer;}
+  .city-dot{fill:#f4ede0;stroke:#2c1810;stroke-width:0.8;transition:all 0.3s;}
+  .city-dot.active{fill:var(--gold-light);stroke:var(--gold);stroke-width:1.5;}
+  .city-label{font-family:'Crimson Pro',serif;font-size:9px;fill:#f4ede0;fill-opacity:0.75;pointer-events:none;}
+  .city-label.active{fill:var(--gold-light);fill-opacity:1;font-size:10px;}
+  @keyframes pulseRing{0%{r:5;opacity:.9;}100%{r:15;opacity:0;}}
+  .pulse-ring{fill:none;stroke:var(--gold-light);stroke-width:1.5;animation:pulseRing 1.4s ease-out infinite;pointer-events:none;}
+  .sidebar{width:272px;background:var(--parchment);border-left:2px solid var(--gold);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+  .sidebar-section{padding:12px 14px;border-bottom:1px solid var(--parchment-dark);}
+  .sidebar-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:7px;}
+  .info-panel{flex:1;overflow-y:auto;padding:12px 14px;}
+  .info-panel::-webkit-scrollbar{width:4px;}
+  .info-panel::-webkit-scrollbar-track{background:var(--parchment-dark);}
+  .info-panel::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+  .empire-card{margin-bottom:9px;padding:8px 10px;border-left:3px solid transparent;background:var(--parchment-dark);cursor:pointer;transition:transform 0.15s;}
+  .empire-card:hover{transform:translateX(2px);}
+  .empire-card.selected{background:#ddd0b0;}
+  .empire-name{font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--ink);}
+  .empire-dates{font-size:11px;color:var(--ink-light);font-style:italic;margin-top:2px;}
+  .event-banner{position:absolute;bottom:0;left:0;right:0;background:rgba(26,16,8,0.93);border-top:1px solid var(--gold);padding:7px 16px;display:flex;align-items:flex-start;gap:10px;pointer-events:none;transition:opacity 0.4s;}
+  .event-banner.hidden{opacity:0;}
+  .event-tag{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--gold);border:1px solid var(--gold);padding:2px 5px;white-space:nowrap;margin-top:2px;flex-shrink:0;}
+  .event-text{font-family:'Crimson Pro',serif;font-size:13px;color:var(--parchment);font-style:italic;line-height:1.4;}
+  .legend{position:absolute;top:10px;left:10px;background:rgba(26,16,8,0.88);border:1px solid var(--gold);padding:8px 11px;pointer-events:none;max-width:185px;}
+  .legend-title{font-family:'Cinzel',serif;font-size:7px;letter-spacing:2px;color:var(--gold);margin-bottom:5px;text-transform:uppercase;}
+  .legend-item{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+  .legend-swatch{width:13px;height:9px;border:0.5px solid rgba(255,255,255,0.2);flex-shrink:0;}
+  .legend-text{font-family:'Crimson Pro',serif;font-size:10px;color:var(--parchment);}
+  .map-tooltip{position:absolute;background:rgba(26,16,8,0.96);border:1px solid var(--gold);padding:7px 11px;pointer-events:none;opacity:0;transition:opacity 0.15s;max-width:240px;z-index:100;}
+  .map-tooltip.visible{opacity:1;}
+  .tooltip-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold-light);margin-bottom:3px;}
+  .tooltip-body{font-family:'Crimson Pro',serif;font-size:12px;color:var(--parchment);font-style:italic;line-height:1.4;}
+  .loading-screen{position:absolute;inset:0;background:#1e3a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:200;transition:opacity 0.6s;}
+  .loading-screen.gone{opacity:0;pointer-events:none;}
+  .loading-title{font-family:'Cinzel',serif;font-size:18px;color:var(--gold-light);letter-spacing:4px;}
+  .loading-sub{font-family:'Crimson Pro',serif;font-style:italic;color:#a09070;font-size:13px;}
+  .loading-bar-wrap{width:200px;height:3px;background:#2a3a4a;border:1px solid var(--gold);}
+  .loading-bar{height:100%;background:var(--gold);width:0%;transition:width 0.3s;}
+  .controls{background:var(--ink);border-top:2px solid var(--gold);padding:10px 20px;flex-shrink:0;}
+  .controls-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .yr-group{display:flex;align-items:center;gap:5px;}
+  .yr-group label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+  .year-input{background:transparent;border:1px solid var(--gold);color:var(--gold-light);font-family:'Cinzel',serif;font-size:12px;padding:3px 7px;width:65px;text-align:center;outline:none;}
+  .btn{background:transparent;border:1px solid var(--gold);color:var(--gold-light);font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;padding:4px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+  .btn:hover{background:var(--gold);color:var(--ink);}
+  .btn.active{background:var(--gold);color:var(--ink);}
+  .speed-group{display:flex;align-items:center;gap:5px;margin-left:auto;}
+  .speed-group label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+  .speed-select{background:transparent;border:1px solid var(--gold);color:var(--gold-light);font-family:'Cinzel',serif;font-size:10px;padding:3px 7px;outline:none;cursor:pointer;}
+  .speed-select option{background:var(--ink);}
+  .slider-row{display:flex;align-items:center;gap:10px;}
+  .slider-label{font-family:'Cinzel',serif;font-size:8px;color:#a09070;letter-spacing:1px;white-space:nowrap;width:38px;text-align:right;}
+  .slider-label:last-child{text-align:left;}
+  input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:linear-gradient(to right,var(--gold) var(--pct,0%),#3a2a1a var(--pct,0%));outline:none;cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold-light);border:2px solid var(--parchment);cursor:grab;}
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;}
+  input[type=range]{flex:1;-webkit-appearance:none;height:5px;background:linear-gradient(to right,var(--gold) var(--pct,0%),#3a2a1a var(--pct,0%));outline:none;cursor:pointer;border-radius:3px;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold-light);border:3px solid var(--parchment);cursor:grab;box-shadow:0 0 6px rgba(180,134,11,0.5);}
+  .header-slider-row{display:flex;align-items:center;gap:12px;margin-top:8px;width:100%;}
+  .header-slider-label{font-family:'Cinzel',serif;font-size:9px;color:#a09070;letter-spacing:1px;white-space:nowrap;}
+  header{flex-direction:column;align-items:stretch;gap:0;}
+  .header-top{display:flex;align-items:center;justify-content:space-between;width:100%;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-top">
+    <div style="display:flex;align-items:baseline">
+      <h1>Atlas of Empires</h1>
+      <div class="subtitle">A living history of the world, 500 – 1994 AD</div>
+    </div>
+    <div class="year-display" id="year-display">500<span>Anno Domini</span></div>
+  </div>
+  <div class="header-slider-row">
+    <span class="header-slider-label">500 AD</span>
+    <input type="range" id="year-slider" min="500" max="1994" value="500" step="1" oninput="onSliderInput(this.value)">
+    <span class="header-slider-label">1994 AD</span>
+  </div>
+</header>
+<div class="main-layout">
+  <div class="map-container" id="map-container">
+    <div class="loading-screen" id="loading-screen">
+      <div class="loading-title">ATLAS OF EMPIRES</div>
+      <div class="loading-sub">Loading geographic data…</div>
+      <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+    </div>
+    <svg id="map-svg"></svg>
+    <div class="legend" id="legend"></div>
+
+    <!-- Zoom controls -->
+    <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:50">
+      <button class="btn" onclick="zoomIn()" title="Zoom in" style="width:32px;height:32px;padding:0;font-size:16px">+</button>
+      <button class="btn" onclick="zoomOut()" title="Zoom out" style="width:32px;height:32px;padding:0;font-size:16px">−</button>
+      <button class="btn" onclick="resetZoom()" title="Reset view" style="width:32px;height:32px;padding:0;font-size:11px;letter-spacing:0">⌂</button>
+    </div>
+    <div class="map-tooltip" id="tooltip">
+      <div class="tooltip-name" id="tooltip-name"></div>
+      <div class="tooltip-body" id="tooltip-body"></div>
+    </div>
+    <div class="event-banner hidden" id="event-banner">
+      <div class="event-tag">Event</div>
+      <div class="event-text" id="event-text"></div>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Active Empires</div>
+      <div id="empire-list"></div>
+    </div>
+    <div class="info-panel" id="info-panel">
+      <div class="sidebar-label">Selected</div>
+      <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the map or in the list to learn more.</p>
+    </div>
+  </div>
+</div>
+<div class="controls">
+  <div class="controls-row">
+    <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500"></div>
+    <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500"></div>
+    <button class="btn" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
+    <button class="btn" onclick="stepYear(-10)">&#8592; 10</button>
+    <button class="btn" onclick="stepYear(-1)">&#8592; 1</button>
+    <button class="btn" onclick="stepYear(1)">1 &#8594;</button>
+    <button class="btn" onclick="stepYear(10)">10 &#8594;</button>
+    <div class="speed-group">
+      <label>Speed</label>
+      <select class="speed-select" id="speed-select">
+        <option value="2000">Slow</option>
+        <option value="1000" selected>Medium</option>
+        <option value="400">Fast</option>
+        <option value="100">Very Fast</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const EMPIRES=[
+  {id:'byzantine',name:'Byzantine Empire',color:'rgba(60,100,200,0.48)',border:'#3c64c8',start:330,end:1453,
+   peaks:[{year:550,desc:'Justinian I — reconquers North Africa and Italy'},{year:1000,desc:'Macedonian Renaissance — golden age of scholarship'}],
+   description:'The continuation of the Roman Empire in the East, centered on Constantinople. A thousand-year bridge between classical antiquity and the medieval world.',
+   shapes:[
+    {years:[330,650],coords:[[[28,42],[36,42],[42,38],[38,34],[32,31],[28,34],[24,38],[28,42]]]},
+    {years:[650,1100],coords:[[[28,42],[36,40],[40,37],[36,34],[30,32],[26,36],[24,40],[28,42]]]},
+    {years:[1100,1453],coords:[[[28,42],[34,42],[36,38],[32,35],[28,36],[26,40],[28,42]]]},
+  ]},
+  {id:'arab',name:'Arab Caliphate',color:'rgba(180,130,20,0.48)',border:'#b48214',start:632,end:1258,
+   peaks:[{year:750,desc:'Abbasid Caliphate — House of Wisdom, Islamic Golden Age'},{year:800,desc:'From Spain to Central Asia — largest empire of its era'}],
+   description:'The Islamic empire spread from Arabia across North Africa, the Middle East, Iberia, and Central Asia — a center of science, mathematics, and trade.',
+   shapes:[
+    {years:[632,750],coords:[[[35,30],[55,30],[60,22],[50,12],[42,12],[36,18],[30,28],[35,30]]]},
+    {years:[750,1000],coords:[[[-5,36],[10,34],[20,32],[35,30],[55,30],[65,35],[65,22],[50,12],[42,12],[36,18],[10,24],[-2,34],[-5,36]]]},
+    {years:[1000,1258],coords:[[[35,30],[55,30],[62,32],[62,22],[50,12],[40,14],[36,20],[30,28],[35,30]]]},
+  ]},
+  {id:'mongol',name:'Mongol Empire',color:'rgba(160,80,20,0.5)',border:'#a05014',start:1206,end:1368,
+   peaks:[{year:1260,desc:'Largest contiguous land empire ever — Korea to Hungary'},{year:1258,desc:'Sack of Baghdad — end of the Abbasid Caliphate'}],
+   description:'Founded by Genghis Khan, the Mongol Empire became the largest contiguous land empire in history, a catastrophic and transformative force across Eurasia.',
+   shapes:[
+    {years:[1206,1240],coords:[[[80,50],[120,50],[130,42],[120,30],[100,28],[80,32],[60,40],[60,48],[80,50]]]},
+    {years:[1240,1368],coords:[[[20,52],[50,52],[80,50],[120,50],[135,42],[125,28],[100,26],[75,28],[50,34],[25,46],[20,52]]]},
+  ]},
+  {id:'ottoman',name:'Ottoman Empire',color:'rgba(200,40,40,0.48)',border:'#c82828',start:1299,end:1922,
+   peaks:[{year:1453,desc:'Mehmed II conquers Constantinople — end of the Byzantine Empire'},{year:1550,desc:'Suleiman the Magnificent — greatest territorial extent'},{year:1683,desc:'Failed siege of Vienna — beginning of long decline'}],
+   description:'One of history\'s most enduring empires, ruling for 600 years across southeastern Europe, the Middle East, and North Africa. Its fall after WWI reshaped the modern Middle East.',
+   shapes:[
+    {years:[1299,1453],coords:[[[26,42],[36,42],[42,38],[40,34],[34,32],[28,36],[24,40],[26,42]]]},
+    {years:[1453,1600],coords:[[[14,42],[36,46],[44,40],[48,36],[44,30],[36,28],[24,30],[16,36],[10,38],[14,42]]]},
+    {years:[1600,1800],coords:[[[14,44],[36,46],[46,40],[50,36],[46,30],[36,26],[24,28],[16,34],[10,40],[14,44]]]},
+    {years:[1800,1922],coords:[[[22,44],[36,44],[44,38],[46,32],[38,28],[28,30],[20,36],[18,42],[22,44]]]},
+  ]},
+  {id:'hre',name:'Holy Roman Empire',color:'rgba(100,60,180,0.44)',border:'#643cb4',start:800,end:1806,
+   peaks:[{year:1000,desc:'Otto III — vision of a universal Christian empire'},{year:1520,desc:'Charles V — Habsburg dynasty at its peak'}],
+   description:'A complex feudal union of Central European territories. Voltaire quipped it was "neither holy, nor Roman, nor an empire" — yet it shaped Central Europe for a thousand years.',
+   shapes:[{years:[800,1806],coords:[[[6,48],[16,54],[24,52],[18,46],[14,42],[8,44],[6,48]]]}]},
+  {id:'ming',name:'Ming Dynasty',color:'rgba(200,60,60,0.48)',border:'#c83c3c',start:1368,end:1644,
+   peaks:[{year:1420,desc:'Forbidden City completed in Beijing'},{year:1433,desc:'Zheng He\'s seventh voyage — fleets reach East Africa'}],
+   description:'The last Han Chinese imperial dynasty. Famous for rebuilding the Great Wall, constructing the Forbidden City, and extraordinary naval expeditions under Admiral Zheng He.',
+   shapes:[{years:[1368,1644],coords:[[[98,24],[108,32],[120,40],[130,42],[122,28],[116,20],[108,18],[100,20],[98,24]]]}]},
+  {id:'mughal',name:'Mughal Empire',color:'rgba(40,140,100,0.48)',border:'#288c64',start:1526,end:1857,
+   peaks:[{year:1632,desc:'Shah Jahan begins the Taj Mahal'},{year:1700,desc:'Aurangzeb — greatest territorial extent'}],
+   description:'The Mughal Empire unified most of the Indian subcontinent under a synthesis of Persian, Islamic, and Hindu culture, producing extraordinary architecture and art.',
+   shapes:[
+    {years:[1526,1700],coords:[[[66,24],[78,34],[84,28],[82,18],[72,14],[64,18],[62,22],[66,24]]]},
+    {years:[1700,1857],coords:[[[66,24],[76,32],[82,26],[80,16],[70,12],[62,16],[60,20],[66,24]]]},
+  ]},
+  {id:'spanish',name:'Spanish Empire',color:'rgba(220,160,20,0.48)',border:'#dca014',start:1492,end:1898,
+   peaks:[{year:1580,desc:'Philip II — largest empire in the world at the time'},{year:1492,desc:'Columbus reaches the Americas — colonization begins'}],
+   description:'The first truly global empire, controlling territory on every inhabited continent. Its wealth from the Americas transformed European economics and global trade.',
+   shapes:[
+    {years:[1492,1898],coords:[[[-10,36],[0,38],[4,44],[2,46],[-6,44],[-10,40],[-10,36]]]},
+    {years:[1492,1898],coords:[[[-80,10],[-70,20],[-60,22],[-55,0],[-65,-15],[-75,-5],[-80,10]]]},
+    {years:[1492,1800],coords:[[[-80,10],[-65,0],[-55,-35],[-70,-50],[-80,-40],[-85,-15],[-80,10]]]},
+  ]},
+  {id:'british',name:'British Empire',color:'rgba(200,40,40,0.44)',border:'#c82828',start:1600,end:1997,
+   peaks:[{year:1920,desc:'Largest empire in history — 24% of world land, 412 million people'}],
+   description:'At its peak the largest empire in history. Its influence shaped the modern world\'s borders, languages, legal systems, and culture across six continents.',
+   shapes:[
+    {years:[1600,1997],coords:[[[-4,50],[2,52],[2,58],[-4,60],[-8,56],[-6,52],[-4,50]]]},
+    {years:[1800,1997],coords:[[[68,8],[80,10],[84,24],[78,28],[72,22],[66,16],[68,8]]]},
+    {years:[1800,1997],coords:[[[130,-20],[148,-18],[152,-28],[145,-38],[136,-35],[128,-28],[130,-20]]]},
+  ]},
+  {id:'french',name:'French Empire',color:'rgba(40,80,200,0.44)',border:'#2850c8',start:1804,end:1962,
+   peaks:[{year:1810,desc:'Napoleon — master of continental Europe'},{year:1920,desc:'Second largest colonial empire in history'}],
+   description:'From Napoleon\'s continental dominance to one of history\'s largest colonial empires, France shaped global history through revolution, enlightenment, and imperial ambition.',
+   shapes:[
+    {years:[1804,1815],coords:[[[-4,44],[8,48],[14,52],[8,54],[2,50],[-4,46],[-4,44]]]},
+    {years:[1815,1962],coords:[[[-4,44],[8,48],[8,52],[2,50],[-2,46],[-4,44]]]},
+    {years:[1880,1962],coords:[[[-18,16],[4,18],[10,24],[8,10],[-4,4],[-16,8],[-18,16]]]},
+  ]},
+  {id:'qing',name:'Qing Dynasty',color:'rgba(180,60,120,0.44)',border:'#b43c78',start:1644,end:1912,
+   peaks:[{year:1760,desc:'Qianlong Emperor — 4.3 million square miles at greatest extent'}],
+   description:'The last imperial dynasty of China. The Manchu Qing ruled a vast multiethnic empire before yielding to the republican revolution of 1912, ending 2,000 years of imperial rule.',
+   shapes:[{years:[1644,1912],coords:[[[75,42],[100,52],[130,48],[135,42],[130,28],[116,20],[100,20],[80,26],[68,38],[75,42]]]}]},
+  {id:'aztec',name:'Aztec Empire',color:'rgba(40,160,120,0.5)',border:'#28a078',start:1428,end:1521,
+   peaks:[{year:1500,desc:'Tenochtitlan — an island city larger than any in contemporary Europe'}],
+   description:'The Aztec Triple Alliance dominated Mesoamerica from Tenochtitlan, a remarkable island city of 200,000 built on Lake Texcoco.',
+   shapes:[{years:[1428,1521],coords:[[[-100,22],[-94,22],[-90,16],[-96,14],[-102,16],[-100,22]]]}]},
+  {id:'inca',name:'Inca Empire',color:'rgba(200,140,40,0.5)',border:'#c88c28',start:1438,end:1572,
+   peaks:[{year:1500,desc:'Tawantinsuyu — 4,000 miles of Andean road network'}],
+   description:'The Inca Empire stretched 4,000 miles along the Andes, held together by an extraordinary road network and administrative system.',
+   shapes:[{years:[1438,1572],coords:[[[-82,-2],[-70,-4],[-64,-18],[-68,-35],[-76,-40],[-80,-20],[-82,-2]]]}]},
+  {id:'russia',name:'Russian Empire',color:'rgba(120,20,20,0.44)',border:'#781414',start:1721,end:1917,
+   peaks:[{year:1860,desc:'Greatest extent — Poland to Alaska, Finland to Central Asia'}],
+   description:'Spanning eleven time zones from Eastern Europe to the Pacific, its collapse in 1917 birthed the Soviet Union and reshaped the 20th century.',
+   shapes:[
+    {years:[1721,1860],coords:[[[24,56],[60,60],[100,62],[140,64],[160,60],[150,50],[120,48],[80,46],[50,48],[30,52],[24,56]]]},
+    {years:[1860,1917],coords:[[[24,56],[60,62],[100,64],[140,66],[168,62],[158,50],[122,46],[80,44],[50,46],[28,52],[24,56]]]},
+  ]},
+  {id:'ussr',name:'Soviet Union',color:'rgba(180,20,20,0.44)',border:'#b41414',start:1922,end:1991,
+   peaks:[{year:1960,desc:'Cold War superpower — Sputnik, nuclear parity with the USA'}],
+   description:'The world\'s first communist state, spanning 11 time zones. Its Cold War rivalry with the United States defined global politics for 45 years.',
+   shapes:[{years:[1922,1991],coords:[[[24,56],[60,62],[100,64],[140,66],[168,62],[158,50],[122,46],[80,44],[50,46],[28,52],[24,56]]]}]},
+];
+
+const CITIES=[
+  {id:'rome',name:'Rome',lon:12.5,lat:41.9,founded:-753,desc:'Eternal City, heart of classical civilization and the Catholic Church'},
+  {id:'constantinople',name:'Constantinople',lon:28.9,lat:41.0,founded:330,desc:'Bridge between East and West — capital of Byzantium, then the Ottoman Empire'},
+  {id:'baghdad',name:'Baghdad',lon:44.4,lat:33.3,founded:762,desc:'Round city of the Abbasids — center of the Islamic Golden Age'},
+  {id:'beijing',name:'Beijing',lon:116.4,lat:39.9,founded:-1045,desc:'Imperial capital of China under Ming and Qing dynasties'},
+  {id:'delhi',name:'Delhi',lon:77.2,lat:28.6,founded:736,desc:'Capital of the Mughal Empire, one of history\'s great cities'},
+  {id:'tenochtitlan',name:'Tenochtitlan',lon:-99.1,lat:19.4,founded:1325,desc:'Aztec island capital with a population exceeding most European cities'},
+  {id:'london',name:'London',lon:-0.1,lat:51.5,founded:47,desc:'Capital of the British Empire, center of global finance and trade'},
+  {id:'paris',name:'Paris',lon:2.3,lat:48.9,founded:-250,desc:'City of light — center of revolution, empire, and culture'},
+  {id:'vienna',name:'Vienna',lon:16.4,lat:48.2,founded:15,desc:'Heart of the Holy Roman and Habsburg Empires'},
+  {id:'samarkand',name:'Samarkand',lon:66.9,lat:39.7,founded:-700,desc:'Jewel of the Silk Road — thrived under Timur and the Mongols'},
+  {id:'cairo',name:'Cairo',lon:31.2,lat:30.1,founded:969,desc:'Gateway between Africa and the Mediterranean — Fatimid jewel near ancient Memphis'},
+  {id:'lisbon',name:'Lisbon',lon:-9.1,lat:38.7,founded:-1200,desc:'Capital of Portugal and launching point for global exploration'},
+  {id:'moscow',name:'Moscow',lon:37.6,lat:55.8,founded:1147,desc:'Third Rome — heart of the Russian and Soviet empires'},
+  {id:'edo',name:'Edo (Tokyo)',lon:139.7,lat:35.7,founded:1457,desc:'Capital of the Tokugawa shogunate, later the modern Tokyo'},
+  {id:'cusco',name:'Cusco',lon:-71.9,lat:-13.5,founded:1100,desc:'Navel of the world — Inca imperial capital high in the Andes'},
+  {id:'mecca',name:'Mecca',lon:39.8,lat:21.4,founded:-2000,desc:'Holiest city of Islam — birthplace of Muhammad'},
+  {id:'venice',name:'Venice',lon:12.3,lat:45.4,founded:421,desc:'Queen of the Adriatic — greatest trading power of medieval Europe'},
+  {id:'timbuktu',name:'Timbuktu',lon:-3.0,lat:16.8,founded:400,desc:'Legendary city of gold at the crossroads of trans-Saharan trade'},
+];
+
+const EVENTS=[
+  {year:527,city:'constantinople',text:'Justinian I becomes Byzantine Emperor — begins reconquering the Western Roman world'},
+  {year:622,city:'mecca',text:'The Hijra — Muhammad\'s migration to Medina, Year 1 of the Islamic calendar'},
+  {year:632,city:'mecca',text:'Death of Muhammad — Arab Caliphates begin sweeping across three continents'},
+  {year:711,city:'lisbon',text:'Moors cross into Iberia — 700 years of Al-Andalus begins'},
+  {year:800,city:'rome',text:'Charlemagne crowned Holy Roman Emperor by Pope Leo III'},
+  {year:1066,city:'london',text:'Battle of Hastings — William the Conqueror reshapes England forever'},
+  {year:1096,city:'constantinople',text:'First Crusade departs — decades of conflict over the Holy Land begin'},
+  {year:1206,city:'samarkand',text:'Genghis Khan unites the Mongol tribes — the world\'s greatest land empire begins'},
+  {year:1215,city:'london',text:'Magna Carta signed — a cornerstone of constitutional law and human rights'},
+  {year:1258,city:'baghdad',text:'Mongols sack Baghdad — the Abbasid Caliphate falls, the House of Wisdom destroyed'},
+  {year:1325,city:'tenochtitlan',text:'Aztecs found Tenochtitlan on an island in Lake Texcoco'},
+  {year:1347,city:'venice',text:'Black Death reaches Europe via Venice — a third of the continent perishes'},
+  {year:1368,city:'beijing',text:'Ming Dynasty founded — the Mongols are expelled from China'},
+  {year:1453,city:'constantinople',text:'Mehmed II conquers Constantinople — end of the Byzantine Empire after 1,123 years'},
+  {year:1492,city:'lisbon',text:'Columbus reaches the Americas — the age of European colonization begins'},
+  {year:1519,city:'tenochtitlan',text:'Hernán Cortés arrives in Mexico — the Aztec Empire falls within two years'},
+  {year:1526,city:'delhi',text:'Babur defeats the Delhi Sultanate at Panipat — the Mughal Empire is founded'},
+  {year:1588,city:'london',text:'England defeats the Spanish Armada — a turning point in Atlantic power'},
+  {year:1632,city:'delhi',text:'Shah Jahan begins construction of the Taj Mahal for his wife Mumtaz Mahal'},
+  {year:1644,city:'beijing',text:'Manchu Qing dynasty displaces the Ming — rules China until 1912'},
+  {year:1683,city:'vienna',text:'Ottoman siege of Vienna fails — the beginning of Ottoman retreat from Europe'},
+  {year:1687,city:'london',text:'Newton publishes Principia Mathematica — laws of motion and universal gravitation'},
+  {year:1721,city:'moscow',text:'Peter the Great proclaims the Russian Empire — a new European power emerges'},
+  {year:1776,city:'london',text:'American Declaration of Independence — thirteen colonies break from British rule'},
+  {year:1789,city:'paris',text:'French Revolution — storming of the Bastille, end of the Ancien Régime'},
+  {year:1804,city:'paris',text:'Napoleon crowns himself Emperor of the French'},
+  {year:1815,city:'vienna',text:'Congress of Vienna — Napoleon defeated, European order redrawn'},
+  {year:1857,city:'delhi',text:'Indian Rebellion — British Crown takes direct rule over India'},
+  {year:1884,city:'cairo',text:'Berlin Conference — European powers partition Africa among themselves'},
+  {year:1914,city:'vienna',text:'Assassination of Franz Ferdinand in Sarajevo — World War I begins'},
+  {year:1917,city:'moscow',text:'Russian Revolution — the Tsar abdicates, Bolsheviks seize power'},
+  {year:1918,city:'vienna',text:'WWI ends — four empires collapse: Austro-Hungarian, Ottoman, German, Russian'},
+  {year:1922,city:'moscow',text:'Soviet Union proclaimed — the first communist superstate'},
+  {year:1945,city:'london',text:'World War II ends — global decolonization begins, age of empires closes'},
+  {year:1947,city:'delhi',text:'India and Pakistan gain independence — the largest decolonization in history'},
+  {year:1949,city:'beijing',text:'Mao Zedong proclaims the People\'s Republic of China'},
+  {year:1989,city:'vienna',text:'Fall of the Berlin Wall — the Cold War ends, the Soviet sphere collapses'},
+  {year:1991,city:'moscow',text:'Dissolution of the Soviet Union — 15 independent states emerge'},
+];
+
+// ============================================================
+// STATE & MAP SETUP
+// ============================================================
+let currentYear=500, playing=false, playInterval=null, selectedEmpire=null;
+let projection, pathGen, svg, W, H, mapGroup, zoomBehavior, currentTransform=d3.zoomIdentity;
+
+async function initMap(){
+  const container=document.getElementById('map-container');
+  W=container.clientWidth; H=container.clientHeight;
+  svg=d3.select('#map-svg').attr('width',W).attr('height',H);
+
+  // Natural Earth projection
+  projection=d3.geoNaturalEarth1().scale(W/6.4).translate([W/2,H/2]);
+  pathGen=d3.geoPath().projection(projection);
+
+  // Animate loading bar
+  const bar=document.getElementById('loading-bar');
+  let p=0;
+  const iv=setInterval(()=>{p=Math.min(p+Math.random()*12,88);bar.style.width=p+'%';if(p>=88)clearInterval(iv);},180);
+
+  let world;
+  try{
+    world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  }catch(e){
+    document.getElementById('loading-screen').innerHTML='<div style="color:#d4a017;font-family:Cinzel,serif;font-size:14px;text-align:center;letter-spacing:2px;padding:20px">Could not load map data.<br><br>Please check your internet connection<br>and reload the file.</div>';
+    return;
+  }
+
+  bar.style.width='100%';
+
+  // Single group that zoom/pan will transform — everything lives inside this
+  mapGroup = svg.append('g').attr('id','map-group');
+
+  // Ocean sphere
+  mapGroup.append('path').datum({type:'Sphere'}).attr('class','sphere').attr('d',pathGen);
+
+  // Graticule grid
+  mapGroup.append('path').datum(d3.geoGraticule()()).attr('class','graticule').attr('d',pathGen);
+
+  // Real country outlines from Natural Earth / TopoJSON
+  const countries=topojson.feature(world,world.objects.countries);
+  mapGroup.append('g').attr('class','land-layer')
+    .selectAll('path').data(countries.features).enter()
+    .append('path').attr('class','land').attr('d',pathGen);
+
+  // Empire and city layers sit above land
+  mapGroup.append('g').attr('id','empires-layer');
+  mapGroup.append('g').attr('id','cities-layer');
+
+  // D3 zoom behavior — scroll to zoom, drag to pan, double-click to zoom in
+  zoomBehavior = d3.zoom()
+    .scaleExtent([1, 12])
+    .on('zoom', (event) => {
+      currentTransform = event.transform;
+      mapGroup.attr('transform', event.transform);
+      // Scale city dots and labels inversely so they stay readable when zoomed
+      const k = event.transform.k;
+      d3.selectAll('.city-dot').attr('r', function() {
+        return (this.classList.contains('active') ? 4 : 2.5) / Math.sqrt(k);
+      });
+      d3.selectAll('.city-label').style('font-size', (9 / Math.sqrt(k)) + 'px');
+      d3.selectAll('.pulse-ring').attr('r', 5 / Math.sqrt(k));
+    });
+
+  svg.call(zoomBehavior);
+
+  // Prevent zoom from interfering with slider/controls
+  svg.on('dblclick.zoom', null);
+  svg.on('dblclick', (event) => {
+    const [mx, my] = d3.pointer(event);
+    svg.transition().duration(400).call(
+      zoomBehavior.scaleBy, 2,
+      [mx, my]
+    );
+  });
+
+  setTimeout(()=>document.getElementById('loading-screen').classList.add('gone'),500);
+  renderMap(currentYear);
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderMap(year){
+  renderEmpires(year);
+  renderCities(year);
+  renderSidebar(year);
+  checkEvents(year);
+}
+
+function renderEmpires(year){
+  const layer=document.getElementById('empires-layer');
+  layer.innerHTML='';
+  const active=EMPIRES.filter(e=>year>=e.start&&year<=e.end);
+  active.forEach(empire=>{
+    const shape=empire.shapes.filter(s=>year>=s.years[0]&&year<=s.years[1]).pop();
+    if(!shape)return;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','empire-region');
+    g.dataset.id=empire.id;
+    shape.coords.forEach(ring=>{
+      const feat={type:'Feature',geometry:{type:'Polygon',coordinates:[ring]}};
+      const d=pathGen(feat);
+      if(!d)return;
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('fill',selectedEmpire===empire.id?empire.color.replace(/[\d.]+\)$/,'0.72)'):empire.color);
+      path.setAttribute('stroke',empire.border);
+      path.setAttribute('stroke-width',selectedEmpire===empire.id?'2':'1');
+      path.setAttribute('stroke-linejoin','round');
+      g.appendChild(path);
+    });
+    g.addEventListener('mouseenter',e=>showTip(e,empire.name,`${empire.start}–${empire.end} · ${year-empire.start} years old`));
+    g.addEventListener('mousemove',moveTip);
+    g.addEventListener('mouseleave',hideTip);
+    g.addEventListener('click',()=>selectEmpire(empire.id));
+    layer.appendChild(g);
+  });
+  renderLegend(active);
+}
+
+function renderCities(year){
+  const layer=document.getElementById('cities-layer');
+  layer.innerHTML='';
+  const event=EVENTS.find(ev=>Math.abs(ev.year-year)<=1);
+  CITIES.forEach(city=>{
+    if(year<city.founded-50)return;
+    const [x,y]=projection([city.lon,city.lat])||[null,null];
+    if(!x)return;
+    const pulsing=event&&event.city===city.id;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','city-group');
+    if(pulsing){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',x);ring.setAttribute('cy',y);ring.setAttribute('r','5');
+      ring.setAttribute('class','pulse-ring');g.appendChild(ring);
+    }
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r',pulsing?'4':'2.5');
+    dot.setAttribute('class',pulsing?'city-dot active':'city-dot');g.appendChild(dot);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',x+6);lbl.setAttribute('y',y-5);
+    lbl.setAttribute('class',pulsing?'city-label active':'city-label');
+    lbl.textContent=city.name;g.appendChild(lbl);
+    g.addEventListener('mouseenter',e=>showTip(e,city.name,city.desc||'Major historical city'));
+    g.addEventListener('mousemove',moveTip);g.addEventListener('mouseleave',hideTip);
+    layer.appendChild(g);
+  });
+}
+
+function renderSidebar(year){
+  const list=document.getElementById('empire-list');
+  const active=EMPIRES.filter(e=>year>=e.start&&year<=e.end);
+  if(!active.length){list.innerHTML='<p style="font-size:11px;color:var(--ink-light);font-style:italic">No major empires in dataset for this year.</p>';return;}
+  list.innerHTML=active.map(e=>`
+    <div class="empire-card ${selectedEmpire===e.id?'selected':''}" style="border-left-color:${e.border}" onclick="selectEmpire('${e.id}')">
+      <div class="empire-name">${e.name}</div>
+      <div class="empire-dates">${e.start} – ${e.end} AD</div>
+    </div>`).join('');
+}
+
+function renderLegend(active){
+  const legend=document.getElementById('legend');
+  if(!active.length){legend.innerHTML='';return;}
+  legend.innerHTML=`<div class="legend-title">Active Empires</div>`+active.slice(0,10).map(e=>`
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:${e.color};border-color:${e.border}"></div>
+      <span class="legend-text">${e.name}</span>
+    </div>`).join('');
+}
+
+function checkEvents(year){
+  const event=EVENTS.find(ev=>Math.abs(ev.year-year)<=1);
+  const banner=document.getElementById('event-banner');
+  if(event){document.getElementById('event-text').textContent=`${event.year} — ${event.text}`;banner.classList.remove('hidden');}
+  else{banner.classList.add('hidden');}
+}
+
+// ============================================================
+// INTERACTION
+// ============================================================
+function selectEmpire(id){
+  selectedEmpire=selectedEmpire===id?null:id;
+  renderMap(currentYear);
+  if(selectedEmpire){
+    const emp=EMPIRES.find(e=>e.id===id);
+    const peaks=(emp.peaks||[]).map(p=>`<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px"><strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}</div>`).join('');
+    document.getElementById('info-panel').innerHTML=`
+      <div class="sidebar-label">Selected</div>
+      <div style="margin-top:8px">
+        <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${emp.name}</div>
+        <div style="font-size:11px;color:var(--gold);margin-bottom:8px;font-style:italic">${emp.start} – ${emp.end} AD</div>
+        <p style="font-size:12px;line-height:1.6;color:var(--ink-light)">${emp.description}</p>
+        ${peaks?`<div style="margin-top:10px"><div class="sidebar-label" style="margin-bottom:4px">Key Moments</div>${peaks}</div>`:''}
+      </div>`;
+  }
+}
+
+function zoomIn(){svg.transition().duration(300).call(zoomBehavior.scaleBy,2);}
+function zoomOut(){svg.transition().duration(300).call(zoomBehavior.scaleBy,0.5);}
+function resetZoom(){svg.transition().duration(500).call(zoomBehavior.transform,d3.zoomIdentity);}
+
+function showTip(e,name,body){
+  document.getElementById('tooltip-name').textContent=name;
+  document.getElementById('tooltip-body').textContent=body;
+  document.getElementById('tooltip').classList.add('visible');
+  moveTip(e);
+}
+function moveTip(e){
+  const rect=document.getElementById('map-container').getBoundingClientRect();
+  const tt=document.getElementById('tooltip');
+  let x=e.clientX-rect.left+14, y=e.clientY-rect.top+14;
+  if(x+250>rect.width)x-=265;if(y+90>rect.height)y-=90;
+  tt.style.left=x+'px';tt.style.top=y+'px';
+}
+function hideTip(){document.getElementById('tooltip').classList.remove('visible');}
+
+// ============================================================
+// YEAR CONTROLS
+// ============================================================
+function setYear(y){
+  y=Math.max(500,Math.min(1994,Math.round(y)));
+  currentYear=y;
+  document.getElementById('year-display').innerHTML=`${y}<span>Anno Domini</span>`;
+  const slider=document.getElementById('year-slider');
+  slider.value=y;
+  slider.style.setProperty('--pct',((y-500)/(1994-500)*100)+'%');
+  renderMap(y);
+}
+function stepYear(d){setYear(currentYear+d);}
+function onSliderInput(v){setYear(parseInt(v));}
+
+function togglePlay(){
+  playing=!playing;
+  const btn=document.getElementById('play-btn');
+  if(playing){
+    let s=Math.max(500,Math.min(1994,parseInt(document.getElementById('range-start').value)||500));
+    let e=Math.max(s+1,Math.min(1994,parseInt(document.getElementById('range-end').value)||1500));
+    if(currentYear<s||currentYear>=e)setYear(s);
+    btn.textContent='⏸ Pause';btn.classList.add('active');
+    const speed=parseInt(document.getElementById('speed-select').value);
+    playInterval=setInterval(()=>{if(currentYear>=e){togglePlay();return;}setYear(currentYear+1);},speed);
+  }else{
+    btn.textContent='▶ Play';btn.classList.remove('active');clearInterval(playInterval);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight')stepYear(e.shiftKey?10:1);
+  if(e.key==='ArrowLeft')stepYear(e.shiftKey?-10:-1);
+  if(e.key===' '){e.preventDefault();togglePlay();}
+});
+
+window.addEventListener('resize',()=>{
+  W=document.getElementById('map-container').clientWidth;
+  H=document.getElementById('map-container').clientHeight;
+  if(projection){
+    projection.scale(W/6.4).translate([W/2,H/2]);
+    svg.attr('width',W).attr('height',H);
+    // Redraw static layers at new size
+    svg.select('.sphere').attr('d',pathGen);
+    svg.select('.graticule').attr('d',pathGen);
+    svg.select('.land-layer').selectAll('path').attr('d',pathGen);
+    renderMap(currentYear);
+  }
+});
+
+initMap();
+</script>
+</body>
+</html>
