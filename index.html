@@ -591,76 +591,83 @@
 </head>
 
 <body>
-<header>
-  <div class="header-top">
-    <div style="display:flex;align-items:baseline">
-      <h1>Atlas of Empires</h1>
-      <div class="subtitle">A living history of the world, 500 – 1994 AD</div>
-    </div>
-    <div class="year-display" id="year-display">500<span>Anno Domini</span></div>
-  </div>
-  <div class="header-slider-row">
-    <span class="header-slider-label">500 AD</span>
-    <input type="range" id="year-slider" min="500" max="1994" value="500" step="1" oninput="onSliderInput(this.value)">
-    <span class="header-slider-label">1994 AD</span>
-  </div>
-</header>
-<div class="main-layout">
-  <div class="map-container" id="map-container">
-    <div class="loading-screen" id="loading-screen">
-      <div class="loading-title">ATLAS OF EMPIRES</div>
-      <div class="loading-sub">Loading geographic data…</div>
-      <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
-    </div>
-    <svg id="map-svg"></svg>
-    <div class="legend" id="legend"></div>
+    <header>
+        <div class="header-top">
+            <div style="display:flex;align-items:baseline">
+                <h1>Atlas of Empires</h1>
+                <div class="subtitle">A living history of the world, 500 – 1994 AD</div>
+            </div>
+            <div class="year-display" id="year-display">500<span>Anno Domini</span></div>
+        </div>
+        <div class="header-slider-row">
+            <span class="header-slider-label">500 AD</span>
+            <input type="range" id="year-slider" min="500" max="1994" value="500" step="1"
+                oninput="onSliderInput(this.value)">
+            <span class="header-slider-label">1994 AD</span>
+        </div>
+    </header>
+    <div class="main-layout">
+        <div class="map-container" id="map-container">
+            <div class="loading-screen" id="loading-screen">
+                <div class="loading-title">ATLAS OF EMPIRES</div>
+                <div class="loading-sub">Loading geographic data…</div>
+                <div class="loading-bar-wrap">
+                    <div class="loading-bar" id="loading-bar"></div>
+                </div>
+            </div>
+            <svg id="map-svg"></svg>
+            <div class="legend" id="legend"></div>
 
-    <!-- Zoom controls -->
-    <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:50">
-      <button class="btn" onclick="zoomIn()" title="Zoom in" style="width:32px;height:32px;padding:0;font-size:16px">+</button>
-      <button class="btn" onclick="zoomOut()" title="Zoom out" style="width:32px;height:32px;padding:0;font-size:16px">−</button>
-      <button class="btn" onclick="resetZoom()" title="Reset view" style="width:32px;height:32px;padding:0;font-size:11px;letter-spacing:0">⌂</button>
+            <!-- Zoom controls -->
+            <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:50">
+                <button class="btn" onclick="zoomIn()" title="Zoom in"
+                    style="width:32px;height:32px;padding:0;font-size:16px">+</button>
+                <button class="btn" onclick="zoomOut()" title="Zoom out"
+                    style="width:32px;height:32px;padding:0;font-size:16px">−</button>
+                <button class="btn" onclick="resetZoom()" title="Reset view"
+                    style="width:32px;height:32px;padding:0;font-size:11px;letter-spacing:0">⌂</button>
+            </div>
+            <div class="map-tooltip" id="tooltip">
+                <div class="tooltip-name" id="tooltip-name"></div>
+                <div class="tooltip-body" id="tooltip-body"></div>
+            </div>
+            <div class="event-banner hidden" id="event-banner">
+                <div class="event-tag">Event</div>
+                <div class="event-text" id="event-text"></div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Active Empires</div>
+                <div style="font-size:10px;color:var(--ink-light);font-style:italic;margin-bottom:8px" id="snapshot-label">Loading…</div>
+                <div id="empire-list"></div>
+            </div>
+            <div class="info-panel" id="info-panel">
+                <div class="sidebar-label">Selected</div>
+                <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the map or in the list to learn more.</p>
+            </div>
+        </div>
     </div>
-    <div class="map-tooltip" id="tooltip">
-      <div class="tooltip-name" id="tooltip-name"></div>
-      <div class="tooltip-body" id="tooltip-body"></div>
+    <div class="controls">
+        <div class="controls-row">
+            <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500"></div>
+            <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500"></div>
+            <button class="btn" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
+            <button class="btn" onclick="stepYear(-10)">&#8592; 10</button>
+            <button class="btn" onclick="stepYear(-1)">&#8592; 1</button>
+            <button class="btn" onclick="stepYear(1)">1 &#8594;</button>
+            <button class="btn" onclick="stepYear(10)">10 &#8594;</button>
+            <div class="speed-group">
+                <label>Speed</label>
+                <select class="speed-select" id="speed-select">
+                    <option value="2000">Slow</option>
+                    <option value="1000" selected>Medium</option>
+                    <option value="400">Fast</option>
+                    <option value="100">Very Fast</option>
+                </select>
+            </div>
+        </div>
     </div>
-    <div class="event-banner hidden" id="event-banner">
-      <div class="event-tag">Event</div>
-      <div class="event-text" id="event-text"></div>
-    </div>
-  </div>
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Active Empires</div>
-      <div id="empire-list"></div>
-    </div>
-    <div class="info-panel" id="info-panel">
-      <div class="sidebar-label">Selected</div>
-      <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the map or in the list to learn more.</p>
-    </div>
-  </div>
-</div>
-<div class="controls">
-  <div class="controls-row">
-    <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500"></div>
-    <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500"></div>
-    <button class="btn" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
-    <button class="btn" onclick="stepYear(-10)">&#8592; 10</button>
-    <button class="btn" onclick="stepYear(-1)">&#8592; 1</button>
-    <button class="btn" onclick="stepYear(1)">1 &#8594;</button>
-    <button class="btn" onclick="stepYear(10)">10 &#8594;</button>
-    <div class="speed-group">
-      <label>Speed</label>
-      <select class="speed-select" id="speed-select">
-        <option value="2000">Slow</option>
-        <option value="1000" selected>Medium</option>
-        <option value="400">Fast</option>
-        <option value="100">Very Fast</option>
-      </select>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
@@ -725,17 +732,17 @@ const EMPIRES=[
    peaks:[{year:1920,desc:'Largest empire in history — 24% of world land, 412 million people'}],
    description:'At its peak the largest empire in history. Its influence shaped the modern world\'s borders, languages, legal systems, and culture across six continents.',
    shapes:[
-    {years:[1600,1997],coords:[[[-4,50],[2,52],[2,58],[-4,60],[-8,56],[-6,52],[-4,50]]]},
-    {years:[1800,1997],coords:[[[68,8],[80,10],[84,24],[78,28],[72,22],[66,16],[68,8]]]},
-    {years:[1800,1997],coords:[[[130,-20],[148,-18],[152,-28],[145,-38],[136,-35],[128,-28],[130,-20]]]},
+    {years:[1600,1997],coords:[[[-4,50],[-6,52],[-8,56],[-4,60],[2,58],[2,52],[-4,50]]]},
+    {years:[1800,1997],coords:[[[68,8],[66,16],[72,22],[78,28],[84,24],[80,10],[68,8]]]},
+    {years:[1800,1997],coords:[[[130,-20],[128,-28],[136,-35],[145,-38],[152,-28],[148,-18],[130,-20]]]},
   ]},
   {id:'french',name:'French Empire',color:'rgba(40,80,200,0.44)',border:'#2850c8',start:1804,end:1962,
    peaks:[{year:1810,desc:'Napoleon — master of continental Europe'},{year:1920,desc:'Second largest colonial empire in history'}],
    description:'From Napoleon\'s continental dominance to one of history\'s largest colonial empires, France shaped global history through revolution, enlightenment, and imperial ambition.',
    shapes:[
-    {years:[1804,1815],coords:[[[-4,44],[8,48],[14,52],[8,54],[2,50],[-4,46],[-4,44]]]},
-    {years:[1815,1962],coords:[[[-4,44],[8,48],[8,52],[2,50],[-2,46],[-4,44]]]},
-    {years:[1880,1962],coords:[[[-18,16],[4,18],[10,24],[8,10],[-4,4],[-16,8],[-18,16]]]},
+    {years:[1804,1815],coords:[[[-4,44],[-4,46],[2,50],[8,54],[14,52],[8,48],[-4,44]]]},
+    {years:[1815,1962],coords:[[[-4,44],[-2,46],[2,50],[8,52],[8,48],[-4,44]]]},
+    {years:[1880,1962],coords:[[[-18,16],[-16,8],[-4,4],[8,10],[10,24],[4,18],[-18,16]]]},
   ]},
   {id:'qing',name:'Qing Dynasty',color:'rgba(180,60,120,0.44)',border:'#b43c78',start:1644,end:1912,
    peaks:[{year:1760,desc:'Qianlong Emperor — 4.3 million square miles at greatest extent'}],
@@ -762,67 +769,73 @@ const EMPIRES=[
    shapes:[{years:[1922,1991],coords:[[[24,56],[60,62],[100,64],[140,66],[168,62],[158,50],[122,46],[80,44],[50,46],[28,52],[24,56]]]}]},
 ];
 
-const CITIES=[
-  {id:'rome',name:'Rome',lon:12.5,lat:41.9,founded:-753,desc:'Eternal City, heart of classical civilization and the Catholic Church'},
-  {id:'constantinople',name:'Constantinople',lon:28.9,lat:41.0,founded:330,desc:'Bridge between East and West — capital of Byzantium, then the Ottoman Empire'},
-  {id:'baghdad',name:'Baghdad',lon:44.4,lat:33.3,founded:762,desc:'Round city of the Abbasids — center of the Islamic Golden Age'},
-  {id:'beijing',name:'Beijing',lon:116.4,lat:39.9,founded:-1045,desc:'Imperial capital of China under Ming and Qing dynasties'},
-  {id:'delhi',name:'Delhi',lon:77.2,lat:28.6,founded:736,desc:'Capital of the Mughal Empire, one of history\'s great cities'},
-  {id:'tenochtitlan',name:'Tenochtitlan',lon:-99.1,lat:19.4,founded:1325,desc:'Aztec island capital with a population exceeding most European cities'},
-  {id:'london',name:'London',lon:-0.1,lat:51.5,founded:47,desc:'Capital of the British Empire, center of global finance and trade'},
-  {id:'paris',name:'Paris',lon:2.3,lat:48.9,founded:-250,desc:'City of light — center of revolution, empire, and culture'},
-  {id:'vienna',name:'Vienna',lon:16.4,lat:48.2,founded:15,desc:'Heart of the Holy Roman and Habsburg Empires'},
-  {id:'samarkand',name:'Samarkand',lon:66.9,lat:39.7,founded:-700,desc:'Jewel of the Silk Road — thrived under Timur and the Mongols'},
-  {id:'cairo',name:'Cairo',lon:31.2,lat:30.1,founded:969,desc:'Gateway between Africa and the Mediterranean — Fatimid jewel near ancient Memphis'},
-  {id:'lisbon',name:'Lisbon',lon:-9.1,lat:38.7,founded:-1200,desc:'Capital of Portugal and launching point for global exploration'},
-  {id:'moscow',name:'Moscow',lon:37.6,lat:55.8,founded:1147,desc:'Third Rome — heart of the Russian and Soviet empires'},
-  {id:'edo',name:'Edo (Tokyo)',lon:139.7,lat:35.7,founded:1457,desc:'Capital of the Tokugawa shogunate, later the modern Tokyo'},
-  {id:'cusco',name:'Cusco',lon:-71.9,lat:-13.5,founded:1100,desc:'Navel of the world — Inca imperial capital high in the Andes'},
-  {id:'mecca',name:'Mecca',lon:39.8,lat:21.4,founded:-2000,desc:'Holiest city of Islam — birthplace of Muhammad'},
-  {id:'venice',name:'Venice',lon:12.3,lat:45.4,founded:421,desc:'Queen of the Adriatic — greatest trading power of medieval Europe'},
-  {id:'timbuktu',name:'Timbuktu',lon:-3.0,lat:16.8,founded:400,desc:'Legendary city of gold at the crossroads of trans-Saharan trade'},
+const CITIES = [
+  { id: 'rome', name: 'Rome', lon: 12.5, lat: 41.9, founded: -753, desc: 'Eternal City, heart of classical civilization and the Catholic Church' },
+  { id: 'constantinople', name: 'Constantinople', lon: 28.9, lat: 41.0, founded: 330, desc: 'Bridge between East and West — capital of Byzantium, then the Ottoman Empire' },
+  { id: 'baghdad', name: 'Baghdad', lon: 44.4, lat: 33.3, founded: 762, desc: 'Round city of the Abbasids — center of the Islamic Golden Age' },
+  { id: 'beijing', name: 'Beijing', lon: 116.4, lat: 39.9, founded: -1045, desc: 'Imperial capital of China under Ming and Qing dynasties' },
+  { id: 'delhi', name: 'Delhi', lon: 77.2, lat: 28.6, founded: 736, desc: 'Capital of the Mughal Empire, one of history\'s great cities' },
+  { id: 'tenochtitlan', name: 'Tenochtitlan', lon: -99.1, lat: 19.4, founded: 1325, desc: 'Aztec island capital with a population exceeding most European cities' },
+  { id: 'london', name: 'London', lon: -0.1, lat: 51.5, founded: 47, desc: 'Capital of the British Empire, center of global finance and trade' },
+  { id: 'paris', name: 'Paris', lon: 2.3, lat: 48.9, founded: -250, desc: 'City of light — center of revolution, empire, and culture' },
+  { id: 'vienna', name: 'Vienna', lon: 16.4, lat: 48.2, founded: 15, desc: 'Heart of the Holy Roman and Habsburg Empires' },
+  { id: 'samarkand', name: 'Samarkand', lon: 66.9, lat: 39.7, founded: -700, desc: 'Jewel of the Silk Road — thrived under Timur and the Mongols' },
+  { id: 'cairo', name: 'Cairo', lon: 31.2, lat: 30.1, founded: 969, desc: 'Gateway between Africa and the Mediterranean — Fatimid jewel near ancient Memphis' },
+  { id: 'lisbon', name: 'Lisbon', lon: -9.1, lat: 38.7, founded: -1200, desc: 'Capital of Portugal and launching point for global exploration' },
+  { id: 'moscow', name: 'Moscow', lon: 37.6, lat: 55.8, founded: 1147, desc: 'Third Rome — heart of the Russian and Soviet empires' },
+  { id: 'edo', name: 'Edo (Tokyo)', lon: 139.7, lat: 35.7, founded: 1457, desc: 'Capital of the Tokugawa shogunate, later the modern Tokyo' },
+  { id: 'cusco', name: 'Cusco', lon: -71.9, lat: -13.5, founded: 1100, desc: 'Navel of the world — Inca imperial capital high in the Andes' },
+  { id: 'mecca', name: 'Mecca', lon: 39.8, lat: 21.4, founded: -2000, desc: 'Holiest city of Islam — birthplace of Muhammad' },
+  { id: 'venice', name: 'Venice', lon: 12.3, lat: 45.4, founded: 421, desc: 'Queen of the Adriatic — greatest trading power of medieval Europe' },
+  { id: 'timbuktu', name: 'Timbuktu', lon: -3.0, lat: 16.8, founded: 400, desc: 'Legendary city of gold at the crossroads of trans-Saharan trade' },
 ];
 
-const EVENTS=[
-  {year:527,city:'constantinople',text:'Justinian I becomes Byzantine Emperor — begins reconquering the Western Roman world'},
-  {year:622,city:'mecca',text:'The Hijra — Muhammad\'s migration to Medina, Year 1 of the Islamic calendar'},
-  {year:632,city:'mecca',text:'Death of Muhammad — Arab Caliphates begin sweeping across three continents'},
-  {year:711,city:'lisbon',text:'Moors cross into Iberia — 700 years of Al-Andalus begins'},
-  {year:800,city:'rome',text:'Charlemagne crowned Holy Roman Emperor by Pope Leo III'},
-  {year:1066,city:'london',text:'Battle of Hastings — William the Conqueror reshapes England forever'},
-  {year:1096,city:'constantinople',text:'First Crusade departs — decades of conflict over the Holy Land begin'},
-  {year:1206,city:'samarkand',text:'Genghis Khan unites the Mongol tribes — the world\'s greatest land empire begins'},
-  {year:1215,city:'london',text:'Magna Carta signed — a cornerstone of constitutional law and human rights'},
-  {year:1258,city:'baghdad',text:'Mongols sack Baghdad — the Abbasid Caliphate falls, the House of Wisdom destroyed'},
-  {year:1325,city:'tenochtitlan',text:'Aztecs found Tenochtitlan on an island in Lake Texcoco'},
-  {year:1347,city:'venice',text:'Black Death reaches Europe via Venice — a third of the continent perishes'},
-  {year:1368,city:'beijing',text:'Ming Dynasty founded — the Mongols are expelled from China'},
-  {year:1453,city:'constantinople',text:'Mehmed II conquers Constantinople — end of the Byzantine Empire after 1,123 years'},
-  {year:1492,city:'lisbon',text:'Columbus reaches the Americas — the age of European colonization begins'},
-  {year:1519,city:'tenochtitlan',text:'Hernán Cortés arrives in Mexico — the Aztec Empire falls within two years'},
-  {year:1526,city:'delhi',text:'Babur defeats the Delhi Sultanate at Panipat — the Mughal Empire is founded'},
-  {year:1588,city:'london',text:'England defeats the Spanish Armada — a turning point in Atlantic power'},
-  {year:1632,city:'delhi',text:'Shah Jahan begins construction of the Taj Mahal for his wife Mumtaz Mahal'},
-  {year:1644,city:'beijing',text:'Manchu Qing dynasty displaces the Ming — rules China until 1912'},
-  {year:1683,city:'vienna',text:'Ottoman siege of Vienna fails — the beginning of Ottoman retreat from Europe'},
-  {year:1687,city:'london',text:'Newton publishes Principia Mathematica — laws of motion and universal gravitation'},
-  {year:1721,city:'moscow',text:'Peter the Great proclaims the Russian Empire — a new European power emerges'},
-  {year:1776,city:'london',text:'American Declaration of Independence — thirteen colonies break from British rule'},
-  {year:1789,city:'paris',text:'French Revolution — storming of the Bastille, end of the Ancien Régime'},
-  {year:1804,city:'paris',text:'Napoleon crowns himself Emperor of the French'},
-  {year:1815,city:'vienna',text:'Congress of Vienna — Napoleon defeated, European order redrawn'},
-  {year:1857,city:'delhi',text:'Indian Rebellion — British Crown takes direct rule over India'},
-  {year:1884,city:'cairo',text:'Berlin Conference — European powers partition Africa among themselves'},
-  {year:1914,city:'vienna',text:'Assassination of Franz Ferdinand in Sarajevo — World War I begins'},
-  {year:1917,city:'moscow',text:'Russian Revolution — the Tsar abdicates, Bolsheviks seize power'},
-  {year:1918,city:'vienna',text:'WWI ends — four empires collapse: Austro-Hungarian, Ottoman, German, Russian'},
-  {year:1922,city:'moscow',text:'Soviet Union proclaimed — the first communist superstate'},
-  {year:1945,city:'london',text:'World War II ends — global decolonization begins, age of empires closes'},
-  {year:1947,city:'delhi',text:'India and Pakistan gain independence — the largest decolonization in history'},
-  {year:1949,city:'beijing',text:'Mao Zedong proclaims the People\'s Republic of China'},
-  {year:1989,city:'vienna',text:'Fall of the Berlin Wall — the Cold War ends, the Soviet sphere collapses'},
-  {year:1991,city:'moscow',text:'Dissolution of the Soviet Union — 15 independent states emerge'},
-];
+        const EVENTS = [
+            { year: 527, city: 'constantinople', text: 'Justinian I becomes Byzantine Emperor — begins reconquering the Western Roman world' },
+            { year: 622, city: 'mecca', text: 'The Hijra — Muhammad\'s migration to Medina, Year 1 of the Islamic calendar' },
+            { year: 632, city: 'mecca', text: 'Death of Muhammad — Arab Caliphates begin sweeping across three continents' },
+            { year: 711, city: 'lisbon', text: 'Moors cross into Iberia — 700 years of Al-Andalus begins' },
+            { year: 800, city: 'rome', text: 'Charlemagne crowned Holy Roman Emperor by Pope Leo III' },
+            { year: 1066, city: 'london', text: 'Battle of Hastings — William the Conqueror reshapes England forever' },
+            { year: 1096, city: 'constantinople', text: 'First Crusade departs — decades of conflict over the Holy Land begin' },
+            { year: 1206, city: 'samarkand', text: 'Genghis Khan unites the Mongol tribes — the world\'s greatest land empire begins' },
+            { year: 1215, city: 'london', text: 'Magna Carta signed — a cornerstone of constitutional law and human rights' },
+            { year: 1258, city: 'baghdad', text: 'Mongols sack Baghdad — the Abbasid Caliphate falls, the House of Wisdom destroyed' },
+            { year: 1325, city: 'tenochtitlan', text: 'Aztecs found Tenochtitlan on an island in Lake Texcoco' },
+            { year: 1347, city: 'venice', text: 'Black Death reaches Europe via Venice — a third of the continent perishes' },
+            { year: 1368, city: 'beijing', text: 'Ming Dynasty founded — the Mongols are expelled from China' },
+            { year: 1453, city: 'constantinople', text: 'Mehmed II conquers Constantinople — end of the Byzantine Empire after 1,123 years' },
+            { year: 1492, city: 'lisbon', text: 'Columbus reaches the Americas — the age of European colonization begins' },
+            { year: 1519, city: 'tenochtitlan', text: 'Hernán Cortés arrives in Mexico — the Aztec Empire falls within two years' },
+            { year: 1526, city: 'delhi', text: 'Babur defeats the Delhi Sultanate at Panipat — the Mughal Empire is founded' },
+            { year: 1588, city: 'london', text: 'England defeats the Spanish Armada — a turning point in Atlantic power' },
+            { year: 1632, city: 'delhi', text: 'Shah Jahan begins construction of the Taj Mahal for his wife Mumtaz Mahal' },
+            { year: 1644, city: 'beijing', text: 'Manchu Qing dynasty displaces the Ming — rules China until 1912' },
+            { year: 1683, city: 'vienna', text: 'Ottoman siege of Vienna fails — the beginning of Ottoman retreat from Europe' },
+            { year: 1687, city: 'london', text: 'Newton publishes Principia Mathematica — laws of motion and universal gravitation' },
+            { year: 1721, city: 'moscow', text: 'Peter the Great proclaims the Russian Empire — a new European power emerges' },
+            { year: 1776, city: 'london', text: 'American Declaration of Independence — thirteen colonies break from British rule' },
+            { year: 1789, city: 'paris', text: 'French Revolution — storming of the Bastille, end of the Ancien Régime' },
+            { year: 1804, city: 'paris', text: 'Napoleon crowns himself Emperor of the French' },
+            { year: 1815, city: 'vienna', text: 'Congress of Vienna — Napoleon defeated, European order redrawn' },
+            { year: 1857, city: 'delhi', text: 'Indian Rebellion — British Crown takes direct rule over India' },
+            { year: 1884, city: 'cairo', text: 'Berlin Conference — European powers partition Africa among themselves' },
+            { year: 1914, city: 'vienna', text: 'Assassination of Franz Ferdinand in Sarajevo — World War I begins' },
+            { year: 1917, city: 'moscow', text: 'Russian Revolution — the Tsar abdicates, Bolsheviks seize power' },
+            { year: 1918, city: 'vienna', text: 'WWI ends — four empires collapse: Austro-Hungarian, Ottoman, German, Russian' },
+            { year: 1922, city: 'moscow', text: 'Soviet Union proclaimed — the first communist superstate' },
+            { year: 1945, city: 'london', text: 'World War II ends — global decolonization begins, age of empires closes' },
+            { year: 1947, city: 'delhi', text: 'India and Pakistan gain independence — the largest decolonization in history' },
+            { year: 1949, city: 'beijing', text: 'Mao Zedong proclaims the People\'s Republic of China' },
+            { year: 1989, city: 'vienna', text: 'Fall of the Berlin Wall — the Cold War ends, the Soviet sphere collapses' },
+            { year: 1991, city: 'moscow', text: 'Dissolution of the Soviet Union — 15 independent states emerge' },
+        ];
+
+        // ============================================================
+        // STATE & MAP SETUP
+        // ============================================================
+        let currentYear = 500, playing = false, playInterval = null, selectedEmpire = null;
+        let projection, pathGen, svg, W, H, mapGroup, zoomBehavior, currentTransform = d3.zoomIdentity;
 
 // ============================================================
 // GEOJSON SNAPSHOT CONFIG
@@ -918,16 +931,10 @@ async function loadSnapshot(year) {
   }
 }
 
-// ============================================================
-// STATE & MAP SETUP
-// ============================================================
-let currentYear=500, playing=false, playInterval=null, selectedEmpire=null;
-let projection, pathGen, svg, W, H, mapGroup, zoomBehavior, currentTransform=d3.zoomIdentity;
-
-async function initMap(){
-  const container=document.getElementById('map-container');
-  W=container.clientWidth; H=container.clientHeight;
-  svg=d3.select('#map-svg').attr('width',W).attr('height',H);
+        async function initMap() {
+            const container = document.getElementById('map-container');
+            W = container.clientWidth; H = container.clientHeight;
+            svg = d3.select('#map-svg').attr('width', W).attr('height', H);
 
             // Natural Earth projection
             projection = d3.geoNaturalEarth1().scale(W / 6.4).translate([W / 2, H / 2]);
@@ -998,45 +1005,80 @@ async function initMap(){
             renderMap(currentYear);
         }
 
-// ============================================================
-// RENDER
-// ============================================================
+        // ============================================================
+        // RENDER
+        // ============================================================
 async function renderMap(year){
-  renderEmpires(year);
+  await renderEmpires(year);
   renderCities(year);
-  renderSidebar(year);
   checkEvents(year);
 }
 
-function renderEmpires(year){
+function renderSidebarFromGeo(features, year) {
+  const list = document.getElementById('empire-list');
+  // Get unique named states, preferring colored ones first
+  const named = [...new Set(features.map(f => f.properties && f.properties.NAME).filter(Boolean))];
+  const colored = named.filter(n => EMPIRE_COLORS[n] || Object.keys(EMPIRE_COLORS).some(k => k !== 'default' && n.includes(k)));
+  const display = colored.length ? colored : named.slice(0, 15);
+
+  if (!display.length) {
+    list.innerHTML = '<p style="font-size:11px;color:var(--ink-light);font-style:italic">No named states found.</p>';
+    return;
+  }
+
+  list.innerHTML = display.slice(0, 20).map(name => {
+    const colors = getEmpireColor(name);
+    return `<div class="empire-card ${selectedEmpire === name ? 'selected' : ''}"
+      style="border-left-color:${colors.stroke}"
+      onclick="selectEmpireByName('${name.replace(/'/g,"\\'")}')">
+      <div class="empire-name">${name}</div>
+      <div class="empire-dates">${getSnapshotYear(year)} AD snapshot</div>
+    </div>`;
+  }).join('');
+}
+
+async function renderEmpires(year){
   const layer=document.getElementById('empires-layer');
   layer.innerHTML='';
-  const active=EMPIRES.filter(e=>year>=e.start&&year<=e.end);
-  active.forEach(empire=>{
-    const shape=empire.shapes.filter(s=>year>=s.years[0]&&year<=s.years[1]).pop();
-    if(!shape)return;
-    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','empire-region');
-    g.dataset.id=empire.id;
-    shape.coords.forEach(ring=>{
-      const feat={type:'Feature',geometry:{type:'Polygon',coordinates:[ring]}};
-      const d=pathGen(feat);
-      if(!d)return;
-      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-      path.setAttribute('d',d);
-      path.setAttribute('fill',selectedEmpire===empire.id?empire.color.replace(/[\d.]+\)$/,'0.72)'):empire.color);
-      path.setAttribute('stroke',empire.border);
-      path.setAttribute('stroke-width',selectedEmpire===empire.id?'2':'1');
-      path.setAttribute('stroke-linejoin','round');
-      g.appendChild(path);
+
+  const geo = await loadSnapshot(year);
+  if (!geo) return;
+
+  const snap = getSnapshotYear(year);
+
+  // Update sidebar snapshot indicator
+  const snapEl = document.getElementById('snapshot-label');
+  if (snapEl) snapEl.textContent = `Showing borders: ${snap} AD`;
+
+  geo.features.forEach(feature => {
+    const name = feature.properties && feature.properties.NAME;
+    const colors = getEmpireColor(name);
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = pathGen(feature);
+    if (!d) return;
+
+    path.setAttribute('d', d);
+    path.setAttribute('fill', selectedEmpire === name ? colors.fill.replace(/[\d.]+\)$/, '0.75)') : colors.fill);
+    path.setAttribute('stroke', colors.stroke);
+    path.setAttribute('stroke-width', selectedEmpire === name ? '1.5' : '0.4');
+    path.setAttribute('stroke-linejoin','round');
+    path.style.cursor = 'pointer';
+
+    path.addEventListener('mouseenter', e => {
+      if (name) showTip(e, name, `${snap} AD snapshot`);
     });
-    g.addEventListener('mouseenter',e=>showTip(e,empire.name,`${empire.start}–${empire.end} · ${year-empire.start} years old`));
-    g.addEventListener('mousemove',moveTip);
-    g.addEventListener('mouseleave',hideTip);
-    g.addEventListener('click',()=>selectEmpire(empire.id));
-    layer.appendChild(g);
+    path.addEventListener('mousemove', moveTip);
+    path.addEventListener('mouseleave', hideTip);
+    path.addEventListener('click', () => {
+      if (name) selectEmpireByName(name);
+    });
+
+    layer.appendChild(path);
   });
-  renderLegend(active);
+
+  // Update sidebar empire list from GeoJSON names
+  renderSidebarFromGeo(geo.features, year);
 }
 
         function renderCities(year) {
@@ -1099,14 +1141,13 @@ function renderEmpires(year){
 // ============================================================
 // INTERACTION
 // ============================================================
-function selectEmpire(id){
-  selectedEmpire=selectedEmpire===id?null:id;
+function selectEmpireByName(name) {
+  selectedEmpire = selectedEmpire === name ? null : name;
   renderMap(currentYear);
 
   if (selectedEmpire) {
     // Check if we have detailed info in EMPIRES dataset
     const emp = EMPIRES.find(e => e.name === name || name.includes(e.name) || e.name.includes(name));
-    const colors = getEmpireColor(name);
     const peaks = emp ? (emp.peaks||[]).map(p =>
       `<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px">
         <strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}
@@ -1115,17 +1156,26 @@ function selectEmpire(id){
     document.getElementById('info-panel').innerHTML = `
       <div class="sidebar-label">Selected</div>
       <div style="margin-top:8px">
-        <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${emp.name}</div>
-        <div style="font-size:11px;color:var(--gold);margin-bottom:8px;font-style:italic">${emp.start} – ${emp.end} AD</div>
-        <p style="font-size:12px;line-height:1.6;color:var(--ink-light)">${emp.description}</p>
-        ${peaks?`<div style="margin-top:10px"><div class="sidebar-label" style="margin-bottom:4px">Key Moments</div>${peaks}</div>`:''}
+        <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${name}</div>
+        <div style="font-size:11px;color:var(--gold);margin-bottom:8px;font-style:italic">
+          ${emp ? `${emp.start} – ${emp.end} AD` : `Active in ${getSnapshotYear(currentYear)} AD`}
+        </div>
+        <p style="font-size:12px;line-height:1.6;color:var(--ink-light)">
+          ${emp ? emp.description : 'Select an empire to see detailed information. More empire descriptions will be added as the dataset grows.'}
+        </p>
+        ${peaks ? `<div style="margin-top:10px"><div class="sidebar-label" style="margin-bottom:4px">Key Moments</div>${peaks}</div>` : ''}
       </div>`;
   }
 }
 
-        function zoomIn() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 2); }
-        function zoomOut() { svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.5); }
-        function resetZoom() { svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity); }
+function selectEmpire(id){
+  const emp = EMPIRES.find(e => e.id === id);
+  if (emp) selectEmpireByName(emp.name);
+}
+
+function zoomIn(){svg.transition().duration(300).call(zoomBehavior.scaleBy,2);}
+function zoomOut(){svg.transition().duration(300).call(zoomBehavior.scaleBy,0.5);}
+function resetZoom(){svg.transition().duration(500).call(zoomBehavior.transform,d3.zoomIdentity);}
 
         function showTip(e, name, body) {
             document.getElementById('tooltip-name').textContent = name;
