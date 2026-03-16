@@ -1018,8 +1018,7 @@ function renderSidebarFromGeo(features, year) {
   const list = document.getElementById('empire-list');
   // Get unique named states, preferring colored ones first
   const named = [...new Set(features.map(f => f.properties && f.properties.NAME).filter(Boolean))];
-  const colored = named.filter(n => EMPIRE_COLORS[n] || Object.keys(EMPIRE_COLORS).some(k => k !== 'default' && n.includes(k)));
-  const display = colored.length ? colored : named.slice(0, 15);
+  const display = named.filter(n => getEmpireColor(n) !== EMPIRE_COLORS['default']);
 
   if (!display.length) {
     list.innerHTML = '<p style="font-size:11px;color:var(--ink-light);font-style:italic">No named states found.</p>';
@@ -1053,6 +1052,7 @@ async function renderEmpires(year){
   geo.features.forEach(feature => {
     const name = feature.properties && feature.properties.NAME;
     const colors = getEmpireColor(name);
+    if (colors === EMPIRE_COLORS['default']) return; // skip unrecognized territories
 
     const path = document.createElementNS('http://www.w3.org/2000/svg','path');
     const d = pathGen(feature);
