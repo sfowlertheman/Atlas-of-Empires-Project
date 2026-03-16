@@ -639,21 +639,19 @@
         <div class="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-label">Active Empires</div>
+                <div style="font-size:10px;color:var(--ink-light);font-style:italic;margin-bottom:8px" id="snapshot-label">Loading…</div>
                 <div id="empire-list"></div>
             </div>
             <div class="info-panel" id="info-panel">
                 <div class="sidebar-label">Selected</div>
-                <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the
-                    map or in the list to learn more.</p>
+                <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the map or in the list to learn more.</p>
             </div>
         </div>
     </div>
     <div class="controls">
         <div class="controls-row">
-            <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500">
-            </div>
-            <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500">
-            </div>
+            <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500"></div>
+            <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500"></div>
             <button class="btn" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
             <button class="btn" onclick="stepYear(-10)">&#8592; 10</button>
             <button class="btn" onclick="stepYear(-1)">&#8592; 1</button>
@@ -670,54 +668,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Zoom controls -->
-    <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:50">
-      <button class="btn" onclick="zoomIn()" title="Zoom in" style="width:32px;height:32px;padding:0;font-size:16px">+</button>
-      <button class="btn" onclick="zoomOut()" title="Zoom out" style="width:32px;height:32px;padding:0;font-size:16px">−</button>
-      <button class="btn" onclick="resetZoom()" title="Reset view" style="width:32px;height:32px;padding:0;font-size:11px;letter-spacing:0">⌂</button>
-    </div>
-    <div class="map-tooltip" id="tooltip">
-      <div class="tooltip-name" id="tooltip-name"></div>
-      <div class="tooltip-body" id="tooltip-body"></div>
-    </div>
-    <div class="event-banner hidden" id="event-banner">
-      <div class="event-tag">Event</div>
-      <div class="event-text" id="event-text"></div>
-    </div>
-  </div>
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Active States</div>
-      <div style="font-size:10px;color:var(--ink-light);font-style:italic;margin-bottom:8px" id="snapshot-label">Loading…</div>
-      <div id="empire-list"></div>
-    </div>
-    <div class="info-panel" id="info-panel">
-      <div class="sidebar-label">Selected</div>
-      <p style="font-size:12px;color:var(--ink-light);font-style:italic;margin-top:6px">Click an empire on the map or in the list to learn more.</p>
-    </div>
-  </div>
-</div>
-<div class="controls">
-  <div class="controls-row">
-    <div class="yr-group"><label>From</label><input type="text" class="year-input" id="range-start" value="500"></div>
-    <div class="yr-group"><label>To</label><input type="text" class="year-input" id="range-end" value="1500"></div>
-    <button class="btn" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
-    <button class="btn" onclick="stepYear(-10)">&#8592; 10</button>
-    <button class="btn" onclick="stepYear(-1)">&#8592; 1</button>
-    <button class="btn" onclick="stepYear(1)">1 &#8594;</button>
-    <button class="btn" onclick="stepYear(10)">10 &#8594;</button>
-    <div class="speed-group">
-      <label>Speed</label>
-      <select class="speed-select" id="speed-select">
-        <option value="2000">Slow</option>
-        <option value="1000" selected>Medium</option>
-        <option value="400">Fast</option>
-        <option value="100">Very Fast</option>
-      </select>
-    </div>
-  </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
