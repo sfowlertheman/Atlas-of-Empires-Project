@@ -591,32 +591,29 @@
 </head>
 
 <body>
-    <header>
-        <div class="header-top">
-            <div style="display:flex;align-items:baseline">
-                <h1>Atlas of Empires</h1>
-                <div class="subtitle">A living history of the world, 500 – 1994 AD</div>
-            </div>
-            <div class="year-display" id="year-display">500<span>Anno Domini</span></div>
-        </div>
-        <div class="header-slider-row">
-            <span class="header-slider-label">500 AD</span>
-            <input type="range" id="year-slider" min="500" max="1994" value="500" step="1"
-                oninput="onSliderInput(this.value)">
-            <span class="header-slider-label">1994 AD</span>
-        </div>
-    </header>
-    <div class="main-layout">
-        <div class="map-container" id="map-container">
-            <div class="loading-screen" id="loading-screen">
-                <div class="loading-title">ATLAS OF EMPIRES</div>
-                <div class="loading-sub">Loading geographic data…</div>
-                <div class="loading-bar-wrap">
-                    <div class="loading-bar" id="loading-bar"></div>
-                </div>
-            </div>
-            <svg id="map-svg"></svg>
-            <div class="legend" id="legend"></div>
+<header>
+  <div class="header-top">
+    <div style="display:flex;align-items:baseline">
+      <h1>Atlas of Empires</h1>
+      <div class="subtitle">A living history of the world, 500 – 1994 AD</div>
+    </div>
+    <div class="year-display" id="year-display">500<span>Anno Domini</span></div>
+  </div>
+  <div class="header-slider-row">
+    <span class="header-slider-label">500 AD</span>
+    <input type="range" id="year-slider" min="500" max="1994" value="500" step="1" oninput="onSliderInput(this.value)">
+    <span class="header-slider-label">1994 AD</span>
+  </div>
+</header>
+<div class="main-layout">
+  <div class="map-container" id="map-container">
+    <div class="loading-screen" id="loading-screen">
+      <div class="loading-title">ATLAS OF EMPIRES</div>
+      <div class="loading-sub">Loading geographic data…</div>
+      <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+    </div>
+    <svg id="map-svg"></svg>
+    <div class="legend" id="legend"></div>
 
     <!-- Zoom controls -->
     <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:50">
@@ -765,26 +762,26 @@ const EMPIRES=[
    shapes:[{years:[1922,1991],coords:[[[24,56],[60,62],[100,64],[140,66],[168,62],[158,50],[122,46],[80,44],[50,46],[28,52],[24,56]]]}]},
 ];
 
-        const CITIES = [
-            { id: 'rome', name: 'Rome', lon: 12.5, lat: 41.9, founded: -753, desc: 'Eternal City, heart of classical civilization and the Catholic Church' },
-            { id: 'constantinople', name: 'Constantinople', lon: 28.9, lat: 41.0, founded: 330, desc: 'Bridge between East and West — capital of Byzantium, then the Ottoman Empire' },
-            { id: 'baghdad', name: 'Baghdad', lon: 44.4, lat: 33.3, founded: 762, desc: 'Round city of the Abbasids — center of the Islamic Golden Age' },
-            { id: 'beijing', name: 'Beijing', lon: 116.4, lat: 39.9, founded: -1045, desc: 'Imperial capital of China under Ming and Qing dynasties' },
-            { id: 'delhi', name: 'Delhi', lon: 77.2, lat: 28.6, founded: 736, desc: 'Capital of the Mughal Empire, one of history\'s great cities' },
-            { id: 'tenochtitlan', name: 'Tenochtitlan', lon: -99.1, lat: 19.4, founded: 1325, desc: 'Aztec island capital with a population exceeding most European cities' },
-            { id: 'london', name: 'London', lon: -0.1, lat: 51.5, founded: 47, desc: 'Capital of the British Empire, center of global finance and trade' },
-            { id: 'paris', name: 'Paris', lon: 2.3, lat: 48.9, founded: -250, desc: 'City of light — center of revolution, empire, and culture' },
-            { id: 'vienna', name: 'Vienna', lon: 16.4, lat: 48.2, founded: 15, desc: 'Heart of the Holy Roman and Habsburg Empires' },
-            { id: 'samarkand', name: 'Samarkand', lon: 66.9, lat: 39.7, founded: -700, desc: 'Jewel of the Silk Road — thrived under Timur and the Mongols' },
-            { id: 'cairo', name: 'Cairo', lon: 31.2, lat: 30.1, founded: 969, desc: 'Gateway between Africa and the Mediterranean — Fatimid jewel near ancient Memphis' },
-            { id: 'lisbon', name: 'Lisbon', lon: -9.1, lat: 38.7, founded: -1200, desc: 'Capital of Portugal and launching point for global exploration' },
-            { id: 'moscow', name: 'Moscow', lon: 37.6, lat: 55.8, founded: 1147, desc: 'Third Rome — heart of the Russian and Soviet empires' },
-            { id: 'edo', name: 'Edo (Tokyo)', lon: 139.7, lat: 35.7, founded: 1457, desc: 'Capital of the Tokugawa shogunate, later the modern Tokyo' },
-            { id: 'cusco', name: 'Cusco', lon: -71.9, lat: -13.5, founded: 1100, desc: 'Navel of the world — Inca imperial capital high in the Andes' },
-            { id: 'mecca', name: 'Mecca', lon: 39.8, lat: 21.4, founded: -2000, desc: 'Holiest city of Islam — birthplace of Muhammad' },
-            { id: 'venice', name: 'Venice', lon: 12.3, lat: 45.4, founded: 421, desc: 'Queen of the Adriatic — greatest trading power of medieval Europe' },
-            { id: 'timbuktu', name: 'Timbuktu', lon: -3.0, lat: 16.8, founded: 400, desc: 'Legendary city of gold at the crossroads of trans-Saharan trade' },
-        ];
+const CITIES=[
+  {id:'rome',name:'Rome',lon:12.5,lat:41.9,founded:-753,desc:'Eternal City, heart of classical civilization and the Catholic Church'},
+  {id:'constantinople',name:'Constantinople',lon:28.9,lat:41.0,founded:330,desc:'Bridge between East and West — capital of Byzantium, then the Ottoman Empire'},
+  {id:'baghdad',name:'Baghdad',lon:44.4,lat:33.3,founded:762,desc:'Round city of the Abbasids — center of the Islamic Golden Age'},
+  {id:'beijing',name:'Beijing',lon:116.4,lat:39.9,founded:-1045,desc:'Imperial capital of China under Ming and Qing dynasties'},
+  {id:'delhi',name:'Delhi',lon:77.2,lat:28.6,founded:736,desc:'Capital of the Mughal Empire, one of history\'s great cities'},
+  {id:'tenochtitlan',name:'Tenochtitlan',lon:-99.1,lat:19.4,founded:1325,desc:'Aztec island capital with a population exceeding most European cities'},
+  {id:'london',name:'London',lon:-0.1,lat:51.5,founded:47,desc:'Capital of the British Empire, center of global finance and trade'},
+  {id:'paris',name:'Paris',lon:2.3,lat:48.9,founded:-250,desc:'City of light — center of revolution, empire, and culture'},
+  {id:'vienna',name:'Vienna',lon:16.4,lat:48.2,founded:15,desc:'Heart of the Holy Roman and Habsburg Empires'},
+  {id:'samarkand',name:'Samarkand',lon:66.9,lat:39.7,founded:-700,desc:'Jewel of the Silk Road — thrived under Timur and the Mongols'},
+  {id:'cairo',name:'Cairo',lon:31.2,lat:30.1,founded:969,desc:'Gateway between Africa and the Mediterranean — Fatimid jewel near ancient Memphis'},
+  {id:'lisbon',name:'Lisbon',lon:-9.1,lat:38.7,founded:-1200,desc:'Capital of Portugal and launching point for global exploration'},
+  {id:'moscow',name:'Moscow',lon:37.6,lat:55.8,founded:1147,desc:'Third Rome — heart of the Russian and Soviet empires'},
+  {id:'edo',name:'Edo (Tokyo)',lon:139.7,lat:35.7,founded:1457,desc:'Capital of the Tokugawa shogunate, later the modern Tokyo'},
+  {id:'cusco',name:'Cusco',lon:-71.9,lat:-13.5,founded:1100,desc:'Navel of the world — Inca imperial capital high in the Andes'},
+  {id:'mecca',name:'Mecca',lon:39.8,lat:21.4,founded:-2000,desc:'Holiest city of Islam — birthplace of Muhammad'},
+  {id:'venice',name:'Venice',lon:12.3,lat:45.4,founded:421,desc:'Queen of the Adriatic — greatest trading power of medieval Europe'},
+  {id:'timbuktu',name:'Timbuktu',lon:-3.0,lat:16.8,founded:400,desc:'Legendary city of gold at the crossroads of trans-Saharan trade'},
+];
 
 const EVENTS=[
   {year:527,city:'constantinople',text:'Justinian I becomes Byzantine Emperor — begins reconquering the Western Roman world'},
@@ -827,16 +824,110 @@ const EVENTS=[
   {year:1991,city:'moscow',text:'Dissolution of the Soviet Union — 15 independent states emerge'},
 ];
 
-        // ============================================================
-        // STATE & MAP SETUP
-        // ============================================================
-        let currentYear = 500, playing = false, playInterval = null, selectedEmpire = null;
-        let projection, pathGen, svg, W, H, mapGroup, zoomBehavior, currentTransform = d3.zoomIdentity;
+// ============================================================
+// GEOJSON SNAPSHOT CONFIG
+// ============================================================
 
-        async function initMap() {
-            const container = document.getElementById('map-container');
-            W = container.clientWidth; H = container.clientHeight;
-            svg = d3.select('#map-svg').attr('width', W).attr('height', H);
+// All available snapshot years from your data/ folder
+const SNAPSHOT_YEARS = [500,600,700,800,900,1000,1100,1200,1279,1300,1400,1492,1500,1530,1600,1650,1700,1715,1783,1800,1815,1880,1900,1914,1920,1930,1938,1945,1960,1994];
+
+// Find the closest snapshot year at or before the current year
+function getSnapshotYear(year) {
+  let closest = SNAPSHOT_YEARS[0];
+  for (const y of SNAPSHOT_YEARS) {
+    if (y <= year) closest = y;
+    else break;
+  }
+  return closest;
+}
+
+// Color lookup — maps NAME values from GeoJSON to empire colors
+// Add more as you explore the data files
+const EMPIRE_COLORS = {
+  // Byzantine
+  'Byzantine Empire': { fill:'rgba(60,100,200,0.52)', stroke:'#3c64c8' },
+  // Arab / Islamic
+  'Arab Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Abbasid Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Umayyad Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Fatimid Caliphate': { fill:'rgba(180,130,20,0.48)', stroke:'#b48214' },
+  // Mongol
+  'Mongol Empire': { fill:'rgba(160,80,20,0.52)', stroke:'#a05014' },
+  'Golden Horde': { fill:'rgba(160,80,20,0.45)', stroke:'#a05014' },
+  'Ilkhanate': { fill:'rgba(160,80,20,0.45)', stroke:'#a05014' },
+  'Chagatai Khanate': { fill:'rgba(160,80,20,0.42)', stroke:'#a05014' },
+  // Ottoman
+  'Ottoman Empire': { fill:'rgba(200,40,40,0.52)', stroke:'#c82828' },
+  // Holy Roman
+  'Holy Roman Empire': { fill:'rgba(100,60,180,0.48)', stroke:'#643cb4' },
+  // Ming / Qing
+  'Ming': { fill:'rgba(200,60,60,0.52)', stroke:'#c83c3c' },
+  'Qing': { fill:'rgba(180,60,120,0.48)', stroke:'#b43c78' },
+  'China': { fill:'rgba(180,60,120,0.44)', stroke:'#b43c78' },
+  // Mughal
+  'Mughal Empire': { fill:'rgba(40,140,100,0.52)', stroke:'#288c64' },
+  'Mughal': { fill:'rgba(40,140,100,0.52)', stroke:'#288c64' },
+  // Spanish
+  'Spain': { fill:'rgba(220,160,20,0.48)', stroke:'#dca014' },
+  'Spanish Empire': { fill:'rgba(220,160,20,0.52)', stroke:'#dca014' },
+  'Castile': { fill:'rgba(220,160,20,0.48)', stroke:'#dca014' },
+  // British
+  'Great Britain': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  'England': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  'British Empire': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  // French
+  'France': { fill:'rgba(40,80,200,0.44)', stroke:'#2850c8' },
+  'French Empire': { fill:'rgba(40,80,200,0.48)', stroke:'#2850c8' },
+  // Russian
+  'Russia': { fill:'rgba(120,20,20,0.44)', stroke:'#781414' },
+  'Russian Empire': { fill:'rgba(120,20,20,0.44)', stroke:'#781414' },
+  'USSR': { fill:'rgba(180,20,20,0.44)', stroke:'#b41414' },
+  // Aztec / Inca
+  'Aztec Empire': { fill:'rgba(40,160,120,0.52)', stroke:'#28a078' },
+  'Inca Empire': { fill:'rgba(200,140,40,0.52)', stroke:'#c88c28' },
+  // Portuguese
+  'Portugal': { fill:'rgba(0,120,80,0.44)', stroke:'#007850' },
+  // Default for unrecognized states
+  'default': { fill:'rgba(140,120,80,0.25)', stroke:'rgba(100,80,40,0.4)' },
+};
+
+function getEmpireColor(name) {
+  if (!name) return EMPIRE_COLORS['default'];
+  // Exact match first
+  if (EMPIRE_COLORS[name]) return EMPIRE_COLORS[name];
+  // Partial match
+  for (const key of Object.keys(EMPIRE_COLORS)) {
+    if (key !== 'default' && name.includes(key)) return EMPIRE_COLORS[key];
+  }
+  return EMPIRE_COLORS['default'];
+}
+
+// Cache loaded GeoJSON files so we don't re-fetch them
+const geoCache = {};
+
+async function loadSnapshot(year) {
+  const snap = getSnapshotYear(year);
+  if (geoCache[snap]) return geoCache[snap];
+  try {
+    const data = await d3.json(`data/world_${snap}.geojson`);
+    geoCache[snap] = data;
+    return data;
+  } catch(e) {
+    console.warn(`Could not load data/world_${snap}.geojson`, e);
+    return null;
+  }
+}
+
+// ============================================================
+// STATE & MAP SETUP
+// ============================================================
+let currentYear=500, playing=false, playInterval=null, selectedEmpire=null;
+let projection, pathGen, svg, W, H, mapGroup, zoomBehavior, currentTransform=d3.zoomIdentity;
+
+async function initMap(){
+  const container=document.getElementById('map-container');
+  W=container.clientWidth; H=container.clientHeight;
+  svg=d3.select('#map-svg').attr('width',W).attr('height',H);
 
             // Natural Earth projection
             projection = d3.geoNaturalEarth1().scale(W / 6.4).translate([W / 2, H / 2]);
@@ -910,7 +1001,7 @@ const EVENTS=[
 // ============================================================
 // RENDER
 // ============================================================
-function renderMap(year){
+async function renderMap(year){
   renderEmpires(year);
   renderCities(year);
   renderSidebar(year);
@@ -1011,10 +1102,17 @@ function renderEmpires(year){
 function selectEmpire(id){
   selectedEmpire=selectedEmpire===id?null:id;
   renderMap(currentYear);
-  if(selectedEmpire){
-    const emp=EMPIRES.find(e=>e.id===id);
-    const peaks=(emp.peaks||[]).map(p=>`<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px"><strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}</div>`).join('');
-    document.getElementById('info-panel').innerHTML=`
+
+  if (selectedEmpire) {
+    // Check if we have detailed info in EMPIRES dataset
+    const emp = EMPIRES.find(e => e.name === name || name.includes(e.name) || e.name.includes(name));
+    const colors = getEmpireColor(name);
+    const peaks = emp ? (emp.peaks||[]).map(p =>
+      `<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px">
+        <strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}
+      </div>`).join('') : '';
+
+    document.getElementById('info-panel').innerHTML = `
       <div class="sidebar-label">Selected</div>
       <div style="margin-top:8px">
         <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${emp.name}</div>
