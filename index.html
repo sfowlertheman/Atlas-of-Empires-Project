@@ -132,7 +132,8 @@
   </div>
   <div class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">Active Empires</div>
+      <div class="sidebar-label">Active States</div>
+      <div style="font-size:10px;color:var(--ink-light);font-style:italic;margin-bottom:8px" id="snapshot-label">Loading…</div>
       <div id="empire-list"></div>
     </div>
     <div class="info-panel" id="info-panel">
@@ -225,17 +226,17 @@ const EMPIRES=[
    peaks:[{year:1920,desc:'Largest empire in history — 24% of world land, 412 million people'}],
    description:'At its peak the largest empire in history. Its influence shaped the modern world\'s borders, languages, legal systems, and culture across six continents.',
    shapes:[
-    {years:[1600,1997],coords:[[[-4,50],[2,52],[2,58],[-4,60],[-8,56],[-6,52],[-4,50]]]},
-    {years:[1800,1997],coords:[[[68,8],[80,10],[84,24],[78,28],[72,22],[66,16],[68,8]]]},
-    {years:[1800,1997],coords:[[[130,-20],[148,-18],[152,-28],[145,-38],[136,-35],[128,-28],[130,-20]]]},
+    {years:[1600,1997],coords:[[[-4,50],[-6,52],[-8,56],[-4,60],[2,58],[2,52],[-4,50]]]},
+    {years:[1800,1997],coords:[[[68,8],[66,16],[72,22],[78,28],[84,24],[80,10],[68,8]]]},
+    {years:[1800,1997],coords:[[[130,-20],[128,-28],[136,-35],[145,-38],[152,-28],[148,-18],[130,-20]]]},
   ]},
   {id:'french',name:'French Empire',color:'rgba(40,80,200,0.44)',border:'#2850c8',start:1804,end:1962,
    peaks:[{year:1810,desc:'Napoleon — master of continental Europe'},{year:1920,desc:'Second largest colonial empire in history'}],
    description:'From Napoleon\'s continental dominance to one of history\'s largest colonial empires, France shaped global history through revolution, enlightenment, and imperial ambition.',
    shapes:[
-    {years:[1804,1815],coords:[[[-4,44],[8,48],[14,52],[8,54],[2,50],[-4,46],[-4,44]]]},
-    {years:[1815,1962],coords:[[[-4,44],[8,48],[8,52],[2,50],[-2,46],[-4,44]]]},
-    {years:[1880,1962],coords:[[[-18,16],[4,18],[10,24],[8,10],[-4,4],[-16,8],[-18,16]]]},
+    {years:[1804,1815],coords:[[[-4,44],[-4,46],[2,50],[8,54],[14,52],[8,48],[-4,44]]]},
+    {years:[1815,1962],coords:[[[-4,44],[-2,46],[2,50],[8,52],[8,48],[-4,44]]]},
+    {years:[1880,1962],coords:[[[-18,16],[-16,8],[-4,4],[8,10],[10,24],[4,18],[-18,16]]]},
   ]},
   {id:'qing',name:'Qing Dynasty',color:'rgba(180,60,120,0.44)',border:'#b43c78',start:1644,end:1912,
    peaks:[{year:1760,desc:'Qianlong Emperor — 4.3 million square miles at greatest extent'}],
@@ -325,6 +326,100 @@ const EVENTS=[
 ];
 
 // ============================================================
+// GEOJSON SNAPSHOT CONFIG
+// ============================================================
+
+// All available snapshot years from your data/ folder
+const SNAPSHOT_YEARS = [500,600,700,800,900,1000,1100,1200,1279,1300,1400,1492,1500,1530,1600,1650,1700,1715,1783,1800,1815,1880,1900,1914,1920,1930,1938,1945,1960,1994];
+
+// Find the closest snapshot year at or before the current year
+function getSnapshotYear(year) {
+  let closest = SNAPSHOT_YEARS[0];
+  for (const y of SNAPSHOT_YEARS) {
+    if (y <= year) closest = y;
+    else break;
+  }
+  return closest;
+}
+
+// Color lookup — maps NAME values from GeoJSON to empire colors
+// Add more as you explore the data files
+const EMPIRE_COLORS = {
+  // Byzantine
+  'Byzantine Empire': { fill:'rgba(60,100,200,0.52)', stroke:'#3c64c8' },
+  // Arab / Islamic
+  'Arab Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Abbasid Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Umayyad Caliphate': { fill:'rgba(180,130,20,0.52)', stroke:'#b48214' },
+  'Fatimid Caliphate': { fill:'rgba(180,130,20,0.48)', stroke:'#b48214' },
+  // Mongol
+  'Mongol Empire': { fill:'rgba(160,80,20,0.52)', stroke:'#a05014' },
+  'Golden Horde': { fill:'rgba(160,80,20,0.45)', stroke:'#a05014' },
+  'Ilkhanate': { fill:'rgba(160,80,20,0.45)', stroke:'#a05014' },
+  'Chagatai Khanate': { fill:'rgba(160,80,20,0.42)', stroke:'#a05014' },
+  // Ottoman
+  'Ottoman Empire': { fill:'rgba(200,40,40,0.52)', stroke:'#c82828' },
+  // Holy Roman
+  'Holy Roman Empire': { fill:'rgba(100,60,180,0.48)', stroke:'#643cb4' },
+  // Ming / Qing
+  'Ming': { fill:'rgba(200,60,60,0.52)', stroke:'#c83c3c' },
+  'Qing': { fill:'rgba(180,60,120,0.48)', stroke:'#b43c78' },
+  'China': { fill:'rgba(180,60,120,0.44)', stroke:'#b43c78' },
+  // Mughal
+  'Mughal Empire': { fill:'rgba(40,140,100,0.52)', stroke:'#288c64' },
+  'Mughal': { fill:'rgba(40,140,100,0.52)', stroke:'#288c64' },
+  // Spanish
+  'Spain': { fill:'rgba(220,160,20,0.48)', stroke:'#dca014' },
+  'Spanish Empire': { fill:'rgba(220,160,20,0.52)', stroke:'#dca014' },
+  'Castile': { fill:'rgba(220,160,20,0.48)', stroke:'#dca014' },
+  // British
+  'Great Britain': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  'England': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  'British Empire': { fill:'rgba(200,40,40,0.44)', stroke:'#c82828' },
+  // French
+  'France': { fill:'rgba(40,80,200,0.44)', stroke:'#2850c8' },
+  'French Empire': { fill:'rgba(40,80,200,0.48)', stroke:'#2850c8' },
+  // Russian
+  'Russia': { fill:'rgba(120,20,20,0.44)', stroke:'#781414' },
+  'Russian Empire': { fill:'rgba(120,20,20,0.44)', stroke:'#781414' },
+  'USSR': { fill:'rgba(180,20,20,0.44)', stroke:'#b41414' },
+  // Aztec / Inca
+  'Aztec Empire': { fill:'rgba(40,160,120,0.52)', stroke:'#28a078' },
+  'Inca Empire': { fill:'rgba(200,140,40,0.52)', stroke:'#c88c28' },
+  // Portuguese
+  'Portugal': { fill:'rgba(0,120,80,0.44)', stroke:'#007850' },
+  // Default for unrecognized states
+  'default': { fill:'rgba(140,120,80,0.25)', stroke:'rgba(100,80,40,0.4)' },
+};
+
+function getEmpireColor(name) {
+  if (!name) return EMPIRE_COLORS['default'];
+  // Exact match first
+  if (EMPIRE_COLORS[name]) return EMPIRE_COLORS[name];
+  // Partial match
+  for (const key of Object.keys(EMPIRE_COLORS)) {
+    if (key !== 'default' && name.includes(key)) return EMPIRE_COLORS[key];
+  }
+  return EMPIRE_COLORS['default'];
+}
+
+// Cache loaded GeoJSON files so we don't re-fetch them
+const geoCache = {};
+
+async function loadSnapshot(year) {
+  const snap = getSnapshotYear(year);
+  if (geoCache[snap]) return geoCache[snap];
+  try {
+    const data = await d3.json(`data/world_${snap}.geojson`);
+    geoCache[snap] = data;
+    return data;
+  } catch(e) {
+    console.warn(`Could not load data/world_${snap}.geojson`, e);
+    return null;
+  }
+}
+
+// ============================================================
 // STATE & MAP SETUP
 // ============================================================
 let currentYear=500, playing=false, playInterval=null, selectedEmpire=null;
@@ -407,42 +502,77 @@ async function initMap(){
 // ============================================================
 // RENDER
 // ============================================================
-function renderMap(year){
+async function renderMap(year){
   renderEmpires(year);
   renderCities(year);
-  renderSidebar(year);
   checkEvents(year);
 }
 
-function renderEmpires(year){
+function renderSidebarFromGeo(features, year) {
+  const list = document.getElementById('empire-list');
+  // Get unique named states, preferring colored ones first
+  const named = [...new Set(features.map(f => f.properties && f.properties.NAME).filter(Boolean))];
+  const colored = named.filter(n => EMPIRE_COLORS[n] || Object.keys(EMPIRE_COLORS).some(k => k !== 'default' && n.includes(k)));
+  const display = colored.length ? colored : named.slice(0, 15);
+
+  if (!display.length) {
+    list.innerHTML = '<p style="font-size:11px;color:var(--ink-light);font-style:italic">No named states found.</p>';
+    return;
+  }
+
+  list.innerHTML = display.slice(0, 20).map(name => {
+    const colors = getEmpireColor(name);
+    return `<div class="empire-card ${selectedEmpire === name ? 'selected' : ''}"
+      style="border-left-color:${colors.stroke}"
+      onclick="selectEmpireByName('${name.replace(/'/g,"\\'")}')">
+      <div class="empire-name">${name}</div>
+      <div class="empire-dates">${getSnapshotYear(year)} AD snapshot</div>
+    </div>`;
+  }).join('');
+}
+
+async function renderEmpires(year){
   const layer=document.getElementById('empires-layer');
   layer.innerHTML='';
-  const active=EMPIRES.filter(e=>year>=e.start&&year<=e.end);
-  active.forEach(empire=>{
-    const shape=empire.shapes.filter(s=>year>=s.years[0]&&year<=s.years[1]).pop();
-    if(!shape)return;
-    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','empire-region');
-    g.dataset.id=empire.id;
-    shape.coords.forEach(ring=>{
-      const feat={type:'Feature',geometry:{type:'Polygon',coordinates:[ring]}};
-      const d=pathGen(feat);
-      if(!d)return;
-      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-      path.setAttribute('d',d);
-      path.setAttribute('fill',selectedEmpire===empire.id?empire.color.replace(/[\d.]+\)$/,'0.72)'):empire.color);
-      path.setAttribute('stroke',empire.border);
-      path.setAttribute('stroke-width',selectedEmpire===empire.id?'2':'1');
-      path.setAttribute('stroke-linejoin','round');
-      g.appendChild(path);
+
+  const geo = await loadSnapshot(year);
+  if (!geo) return;
+
+  const snap = getSnapshotYear(year);
+
+  // Update sidebar snapshot indicator
+  const snapEl = document.getElementById('snapshot-label');
+  if (snapEl) snapEl.textContent = `Showing borders: ${snap} AD`;
+
+  geo.features.forEach(feature => {
+    const name = feature.properties && feature.properties.NAME;
+    const colors = getEmpireColor(name);
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = pathGen(feature);
+    if (!d) return;
+
+    path.setAttribute('d', d);
+    path.setAttribute('fill', selectedEmpire === name ? colors.fill.replace(/[\d.]+\)$/, '0.75)') : colors.fill);
+    path.setAttribute('stroke', colors.stroke);
+    path.setAttribute('stroke-width', selectedEmpire === name ? '1.5' : '0.4');
+    path.setAttribute('stroke-linejoin','round');
+    path.style.cursor = 'pointer';
+
+    path.addEventListener('mouseenter', e => {
+      if (name) showTip(e, name, `${snap} AD snapshot`);
     });
-    g.addEventListener('mouseenter',e=>showTip(e,empire.name,`${empire.start}–${empire.end} · ${year-empire.start} years old`));
-    g.addEventListener('mousemove',moveTip);
-    g.addEventListener('mouseleave',hideTip);
-    g.addEventListener('click',()=>selectEmpire(empire.id));
-    layer.appendChild(g);
+    path.addEventListener('mousemove', moveTip);
+    path.addEventListener('mouseleave', hideTip);
+    path.addEventListener('click', () => {
+      if (name) selectEmpireByName(name);
+    });
+
+    layer.appendChild(path);
   });
-  renderLegend(active);
+
+  // Update sidebar empire list from GeoJSON names
+  renderSidebarFromGeo(geo.features, year);
 }
 
 function renderCities(year){
@@ -505,21 +635,37 @@ function checkEvents(year){
 // ============================================================
 // INTERACTION
 // ============================================================
-function selectEmpire(id){
-  selectedEmpire=selectedEmpire===id?null:id;
+function selectEmpireByName(name) {
+  selectedEmpire = selectedEmpire === name ? null : name;
   renderMap(currentYear);
-  if(selectedEmpire){
-    const emp=EMPIRES.find(e=>e.id===id);
-    const peaks=(emp.peaks||[]).map(p=>`<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px"><strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}</div>`).join('');
-    document.getElementById('info-panel').innerHTML=`
+
+  if (selectedEmpire) {
+    // Check if we have detailed info in EMPIRES dataset
+    const emp = EMPIRES.find(e => e.name === name || name.includes(e.name) || e.name.includes(name));
+    const colors = getEmpireColor(name);
+    const peaks = emp ? (emp.peaks||[]).map(p =>
+      `<div style="margin-top:6px;padding:6px 8px;background:var(--parchment-dark);border-left:2px solid var(--gold);font-size:11px">
+        <strong style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px">${p.year} AD</strong><br>${p.desc}
+      </div>`).join('') : '';
+
+    document.getElementById('info-panel').innerHTML = `
       <div class="sidebar-label">Selected</div>
       <div style="margin-top:8px">
-        <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${emp.name}</div>
-        <div style="font-size:11px;color:var(--gold);margin-bottom:8px;font-style:italic">${emp.start} – ${emp.end} AD</div>
-        <p style="font-size:12px;line-height:1.6;color:var(--ink-light)">${emp.description}</p>
-        ${peaks?`<div style="margin-top:10px"><div class="sidebar-label" style="margin-bottom:4px">Key Moments</div>${peaks}</div>`:''}
+        <div style="font-family:Cinzel,serif;font-size:13px;color:var(--ink);margin-bottom:3px">${name}</div>
+        <div style="font-size:11px;color:var(--gold);margin-bottom:8px;font-style:italic">
+          ${emp ? `${emp.start} – ${emp.end} AD` : `Active in ${getSnapshotYear(currentYear)} AD`}
+        </div>
+        <p style="font-size:12px;line-height:1.6;color:var(--ink-light)">
+          ${emp ? emp.description : 'Select an empire to see detailed information. More empire descriptions will be added as the dataset grows.'}
+        </p>
+        ${peaks ? `<div style="margin-top:10px"><div class="sidebar-label" style="margin-bottom:4px">Key Moments</div>${peaks}</div>` : ''}
       </div>`;
   }
+}
+
+function selectEmpire(id){
+  const emp = EMPIRES.find(e => e.id === id);
+  if (emp) selectEmpireByName(emp.name);
 }
 
 function zoomIn(){svg.transition().duration(300).call(zoomBehavior.scaleBy,2);}
